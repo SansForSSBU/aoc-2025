@@ -36,9 +36,9 @@ def get_connection_costs(boxes):
     return connections
 
 def solve_pt1(boxes):
-    connections = get_connection_costs(boxes)
+    possible_connections = get_connection_costs(boxes)
+    best_connections = sorted(possible_connections, key=lambda x: x[1])
     circuits = [{i} for i, _ in enumerate(boxes)]
-    best_connections = sorted(connections, key=lambda x: x[1])
     for (connection, cost) in best_connections[:1000]:
         update_circuits(connection, circuits)
 
@@ -47,8 +47,18 @@ def solve_pt1(boxes):
     return math.prod(three_largest_lengths)
 
 def solve_pt2(boxes):
-    connections = sorted(get_connection_costs(boxes), key=lambda x: x[1])
-    pass
+    possible_connections = sorted(get_connection_costs(boxes), key=lambda x: x[1])
+    best_connections = sorted(possible_connections, key=lambda x: x[1])
+    circuits = [{i} for i, _ in enumerate(boxes)]
+    i = 0
+    while True:
+        (connection, cost) = best_connections[i]
+        update_circuits(connection,circuits)
+        i += 1
+        if len(circuits) == 1:
+            box1_x = boxes[connection[0]][0]
+            box2_x = boxes[connection[1]][0]
+            return box1_x*box2_x
 
 
 boxes = [tuple([int(n) for n in box.split(",")]) for box in input_text.split("\n") if len(box)>0]
