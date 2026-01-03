@@ -3,8 +3,19 @@ with open("puzzle3/input.txt", "r") as f:
 lines = [l for l in input_text.split("\n") if len(l)>0]
 
 def get_max_joltage_pt2(line):
-    pass
-    return 0
+    nums = [int(x) for x in list(line)]
+    ret = ""
+    for digit in range(12, 0, -1):
+        excluded_digits = digit-1
+        if excluded_digits > 0:
+            choices = nums[:-excluded_digits]
+        else:
+            choices = nums
+        largest = max(choices)
+        idx = nums.index(largest)
+        nums = nums[idx+1:]
+        ret = ret + str(largest)
+    return int(ret)
 
 def get_max_joltage_pt1(line):
     nums = [int(x) for x in list(line)]
