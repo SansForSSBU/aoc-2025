@@ -29,7 +29,6 @@ def solve_pt2(ranges):
     n = 0
     while n < len(ranges):
         r1 = ranges.pop(0)
-        print(r1)
         dels = []
         for idx, r2 in enumerate(ranges):
             merged = merge_ranges(r1,r2)
@@ -42,7 +41,6 @@ def solve_pt2(ranges):
             n = 0
         for deletion in sorted(dels, reverse=True):
             del ranges[deletion]
-        print(r1)
         ranges.append(r1)
     return sum([len(r) for r in ranges])
     pass
