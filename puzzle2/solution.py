@@ -21,6 +21,7 @@ def make_invalids_with_n_digits(n, part1=False):
                 continue
             invalids.extend([int(str(x)*repeats) for x in all_numbers_with_n_digits(repeatedLength)])
     return list(set(invalids))
+
 def solve_part(ranges, invalids):
     ans = 0
     for r in ranges:
