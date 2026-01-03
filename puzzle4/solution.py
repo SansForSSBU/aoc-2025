@@ -35,19 +35,37 @@ def get_coords(grid, coords):
         return grid[y][x]
     else:
         return 0
+    
+def set_coords(grid, coords, value):
+    (x, y) = coords
+    if is_in_grid(grid,coords):
+        grid[y][x] = value
 
-def solve_pt1(grid):
-    ans = 0
+def get_removable_rolls(grid):
+    rolls = []
     for x in range(grid.shape[0]):
         for y in range(grid.shape[1]):
-            if get_coords(grid, (x,y)) == 1:
-                if get_num_adjacent_rolls(grid, (x,y)) < 4:
-                    ans += 1
+            coords = (x,y)
+            if get_coords(grid, coords) == 1:
+                if get_num_adjacent_rolls(grid, coords) < 4:
+                    rolls.append(coords)
+    return rolls
+
+def solve_pt1(grid):
+    return len(get_removable_rolls(grid))
+
+def solve_pt2(grid):
+    ans = 0
+    while True:
+        removes = get_removable_rolls(grid)
+        if len(removes) == 0:
+            break
+        ans += len(removes)
+        for remove in removes:
+            set_coords(grid, remove, 0)
     return ans
 
+
 g = get_input()
-x = np.array([
-    [2, 2, 2],
-    [3, 3, 3]
-])
 print("Part 1 ans:", solve_pt1(g))
+print("Part 2 ans:", solve_pt2(g))
