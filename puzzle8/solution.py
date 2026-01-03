@@ -37,8 +37,11 @@ def get_connection_costs(boxes):
 
 def solve_pt1(boxes):
     connections = get_connection_costs(boxes)
-    best_connections = [connection[0] for connection in sorted(connections, key=lambda x: x[1])[:1000]]
-    circuits = find_circuits(best_connections)
+    circuits = [{i} for i, _ in enumerate(boxes)]
+    best_connections = sorted(connections, key=lambda x: x[1])
+    for (connection, cost) in best_connections[:1000]:
+        update_circuits(connection, circuits)
+
     circuit_lengths = [len(circuit) for circuit in circuits]
     three_largest_lengths = sorted(circuit_lengths, reverse=True)[:3]
     return math.prod(three_largest_lengths)
