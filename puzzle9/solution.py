@@ -89,6 +89,7 @@ def is_rectangle_legal(rectangle, edges):
     return len(intersections) == 0
 
 def solve_pt2(coordinate_list):
+    # 2393897350 too high
     edges = get_edges(coordinate_list)
     rectangles = get_best_rectangles(coordinate_list)
     for rectangle in rectangles:
