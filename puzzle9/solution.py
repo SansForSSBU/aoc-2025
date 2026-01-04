@@ -54,6 +54,7 @@ class Rectangle():
     def __init__(self, v1, v2):
         self.v1 = v1
         self.v2 = v2
+        self.v1, _, self.v2, _ = self.vertices() # Hack to sort them
     
     def get_shrunk_rect(self, units=1):
         _v1, _, _v2, _ = self.vertices()
