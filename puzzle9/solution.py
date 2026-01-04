@@ -198,9 +198,17 @@ def is_rectangle_legal(rectangle, corners, loop):
     shrunk_rect = rectangle.get_shrunk_rect()
     shrunk_rect_edges = shrunk_rect.edges()
     for edge1 in shrunk_rect_edges:
+        intersects = []
         for edge2 in [e[0] for e in loop.edges]:
             if do_edges_intersect(edge1, edge2): # intersect
-                return False
+                pos = edge2.x if isinstance(edge2.x, int) else edge2.y
+                intersects.append(pos)
+        intersects.sort()
+        for idx in range(len(intersects)-1):
+            if abs(intersects[idx]-intersects[idx+1]) == 1:
+                raise Exception("Assumption violated. Two parallel edges are next to each other.")
+        if len(intersects) > 0:
+            return False
     
     return True
 
