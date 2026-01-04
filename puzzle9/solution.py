@@ -212,35 +212,13 @@ def is_rectangle_legal(rectangle, loop):
     
     return True
 
-
-
-
-
-def checkProgress():
-    progress = 0
-    try:
-        with open("puzzle9/progress.txt", "r") as f:
-            progress = int(f.read())
-    except Exception:
-        pass
-    return progress
-
-def saveProgress(idx):
-    with open("puzzle9/progress.txt", "w") as f:
-        f.write(str(idx))
-
 def solve_pt2(coordinate_list):
-    progress = checkProgress()
     loop = Loop(coordinate_list)
     rectangles = get_best_rectangles(coordinate_list)
-    for idx in range(progress, len(rectangles)):
-        rectangle = rectangles[idx]
+    for rectangle in rectangles:
         if is_rectangle_legal(rectangle, loop):
             return rectangle.area()
-        if idx % 100 == 0:
-            saveProgress(idx)
 
 coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_text.split("\n") if len(l) > 0]
 print("Part 1 ans:", solve_pt1(coordinate_list))
 print("Part 2 ans:", solve_pt2(coordinate_list))
-pass
