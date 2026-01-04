@@ -1,22 +1,26 @@
+from enum import Enum
 with open("puzzle9/input.txt", "r") as f:
     input_text = f.read()
 
 
+class Orientation(Enum):
+    VERTICAL=0
+    HORIZONTAL=1
+
 class Edge():
-    def __init__(self, coordinate1, coordinate2, include_corners=True):
-        self.x = range(*sorted([coordinate1[0], coordinate2[0]+1]))
-        self.y = range(*sorted([coordinate1[1], coordinate2[1]+1]))
+    def __init__(self, coordinate1, coordinate2):
+        x = sorted([coordinate1[0], coordinate2[0]])
+        self.x = range(x[0], x[1]+1)
+        y = sorted([coordinate1[1], coordinate2[1]])
+        self.y = range(y[0], y[1]+1)
         if len(self.x) == 1:
             self.x = self.x[0]
-            self.orientation = "vertical"
-            if not include_corners:
-                self.y = range(self.y[1], self.y[-1])
-        if len(self.y) == 1:
+            self.orientation = Orientation.VERTICAL
+        elif len(self.y) == 1:
             self.y = self.y[0]
-            self.orientation = "horizontal"
-            if not include_corners:
-                self.x = range(self.x[1], self.x[-1])
-        pass
+            self.orientation = Orientation.HORIZONTAL
+        else:
+            raise ValueError()
     
     def __str__(self):
         return f"<Edge {self.x} {self.y}>"
@@ -40,7 +44,7 @@ class Rectangle():
         return (va,vb,vc,vd)
     
     def edges(self):
-        return get_edges(self.vertices(), include_corners=False)
+        return get_edges(self.vertices())
 
 def get_best_rectangles(vertex_list):
     rectangles = []
@@ -56,40 +60,42 @@ def solve_pt1(coordinate_list):
     best_rectangle = get_best_rectangles(coordinate_list)[0]
     return best_rectangle.area()
 
-def is_rectangle_legal(coord1, coord2):
-    pass
-
-def get_edges(coordinate_list, include_corners=True):
+def get_edges(coordinate_list):
     edges = []
     for idx1 in range(len(coordinate_list)):
         idx2 = idx1 + 1
         if idx2 >= len(coordinate_list):
             idx2 = 0
-        edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2], include_corners=include_corners))
+        v1 = coordinate_list[idx1]
+        v2 = coordinate_list[idx2]
+        edges.append(Edge(v1, v2))
     return edges
 
 def do_edges_intersect(edge1, edge2):
     x = sorted([edge1.x, edge2.x], key=lambda a: isinstance(a, range))
     y = sorted([edge1.y, edge2.y], key=lambda a: isinstance(a, range))
+    assert x[0]
     return x[0] in x[1] and y[0] in y[1]
 
+
 def is_rectangle_legal(rectangle, edges):
-    verticals = [edge for edge in edges if edge.orientation == "vertical"]
-    horizontals = [edge for edge in edges if edge.orientation == "horizontal"]
+    verticals = [edge for edge in edges if edge.orientation == Orientation.VERTICAL]
+    horizontals = [edge for edge in edges if edge.orientation == Orientation.HORIZONTAL]
     if rectangle.area() == 2393897350:
         # TODO: Figure out why this rectangle is not valid
         pass
     intersections = []
     for rectEdge in rectangle.edges():
-        if rectEdge.orientation == "vertical":
+        if rectEdge.orientation == Orientation.VERTICAL:
             wallEdges = horizontals
-        elif rectEdge.orientation == "horizontal":
+        elif rectEdge.orientation == Orientation.HORIZONTAL:
             wallEdges = verticals
         for wallEdge in wallEdges:
             if do_edges_intersect(rectEdge, wallEdge):
-                intersections.append(wallEdge)
-    
-    return len(intersections) == 0
+                intersections.append((rectEdge, wallEdge))
+    if len(intersections) < 4:
+        raise ValueError()
+    return len(intersections) == 4
 
 def checkProgress():
     progress = 0
