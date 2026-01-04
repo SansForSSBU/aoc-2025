@@ -21,6 +21,15 @@ class Rectangle():
     def area(self):
         return (abs(self.v1[0] - self.v2[0]) + 1) * (abs(self.v1[1] - self.v2[1]) + 1)
     
+    def vertices(self):
+        va = (min(self.v1[0], self.v2[0]), min(self.v1[1], self.v2[1]))
+        vb = (max(self.v1[0], self.v2[0]), min(self.v1[1], self.v2[1]))
+        vc = (max(self.v1[0], self.v2[0]), max(self.v1[1], self.v2[1]))
+        vd = (min(self.v1[0], self.v2[0]), max(self.v1[1], self.v2[1]))
+        return (va,vb,vc,vd)
+    
+    def edges(self):
+        return get_edges(self.vertices())
 
 def get_best_rectangles(vertex_list):
     rectangles = []
@@ -48,9 +57,15 @@ def get_edges(coordinate_list):
         edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2]))
     return edges
 
+def is_rectangle_legal(rectangle, edges):
+    return True
+
 def solve_pt2(coordinate_list):
     edges = get_edges(coordinate_list)
-    pass
+    rectangles = get_best_rectangles(coordinate_list)
+    for rectangle in rectangles:
+        if is_rectangle_legal(rectangle, edges):
+            return rectangle.area()
 
 coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_text.split("\n") if len(l) > 0]
 print("Part 1 ans:", solve_pt1(coordinate_list))
