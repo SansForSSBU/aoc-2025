@@ -1,5 +1,6 @@
 from enum import Enum
 import math
+from copy import deepcopy
 import statistics
 with open("puzzle9/input.txt", "r") as f:
     input_text = f.read()
@@ -41,6 +42,8 @@ class Edge():
         else:
             raise ValueError()
     
+    def length(self):
+        return len([a for a in [self.x,self.y] if isinstance(a, range)][0])
     def __str__(self):
         return f"<Edge {self.x} {self.y}>"
 
@@ -52,6 +55,16 @@ class Rectangle():
         self.v1 = v1
         self.v2 = v2
     
+    def get_shrunk_rect(self, units=1):
+        _v1, _, _v2, _ = self.vertices()
+        v1 = (_v1[0] + units, _v1[1] + units)
+        v2 = (_v2[0] - units, _v2[1] - units)
+        _y_diff = _v2[1] - _v1[1]
+        _x_diff = _v2[0] - _v1[0]
+        y_diff = v2[1] - v1[1]
+        x_diff = v2[0] - v1[0]
+        return Rectangle(v1, v2)
+
     def area(self):
         return (abs(self.v1[0] - self.v2[0]) + 1) * (abs(self.v1[1] - self.v2[1]) + 1)
     
@@ -120,27 +133,12 @@ class Loop():
 
     def get_rotation(self, direction1, direction2):
         # +1 for Right, -1 for Left
-        if direction1 == Direction.NORTH:
-            if direction2 == Direction.EAST:
-                return 90
-            elif direction2 == Direction.WEST:
-                return -90
-        elif direction1 == Direction.SOUTH:
-            if direction2 == Direction.WEST:
-                return 90
-            if direction2 == Direction.EAST:
-                return -90
-        elif direction1 == Direction.EAST:
-            if direction2 == Direction.SOUTH:
-                return 90
-            elif direction2 == Direction.NORTH:
-                return -90
-        elif direction1 == Direction.WEST:
-            if direction2 == Direction.NORTH:
-                return 90
-            elif direction2 == Direction.SOUTH:
-                return -90
-        raise ValueError
+        if direction1.turn_90_degrees(Side.RIGHT) == direction2:
+            return 90
+        elif direction1.turn_90_degrees(Side.LEFT) == direction2:
+            return -90
+        else:
+            raise ValueError()
     
     def get_loop_side(self, coordinate_list):
         turning_number = self.get_turning_number(coordinate_list)
@@ -181,16 +179,11 @@ def do_edges_intersect(edge1, edge2):
     return x[0] in x[1] and y[0] in y[1]
 
 def is_rectangle_legal(rectangle, corners, loop):
-    # If rectangle 1-inside rectangle intersects any lines, false.
-    v1, _, v2, _ = rectangle.vertices()
-    v1 = (v1[0] + 1, v1[1] + 1)
-    v2 = (v2[0] + 1, v2[1] + 1)
-    shrunk_rect = Rectangle(v1,v2)
-    shrunk_rect_edges = shrunk_rect.edges()
-    for edge1 in shrunk_rect_edges:
-        for edge2 in [e[0] for e in loop.edges]:
-            if do_edges_intersect(edge1, edge2): # intersect
-                return False
+    # Method: Check if midpoint is inside the loop. If it isn't, return False.
+    # If it is, check for any intersecting lines. 
+    # If there are no intersecting lines, the rectangle must either be entirely inside the loop or entirely outside the loop.
+    # Because the midpoint was inside the loop and the rectangle is either entirely inside or out, therefore the entire rectangle must be.
+    
     # Raycast to verify midpoint is inside the loop
     midpoint = rectangle.midpoint()
     eligible_north_edges = [edge for edge in loop.edges if edge[1] in [Direction.SOUTH, Direction.NORTH]]
@@ -198,8 +191,17 @@ def is_rectangle_legal(rectangle, corners, loop):
     eligible_north_edges = [edge for edge in eligible_north_edges if edge[0].y >= midpoint[1]]
     if len(eligible_north_edges) == 0: return False
     eligible_north_edges.sort(key=lambda x: x[0].y)
-    if eligible_north_edges[0][1] == Direction.NORTH:
+    if eligible_north_edges[0][1] == Direction.SOUTH:
         return False
+    # If rectangle 1-inside rectangle intersects any lines, false.
+    
+    shrunk_rect = rectangle.get_shrunk_rect()
+    shrunk_rect_edges = shrunk_rect.edges()
+    for edge1 in shrunk_rect_edges:
+        for edge2 in [e[0] for e in loop.edges]:
+            if do_edges_intersect(edge1, edge2): # intersect
+                return False
+    
     return True
 
 
@@ -223,6 +225,8 @@ def solve_pt2(coordinate_list):
     # 242043982?
     # 2393897350 too high
     # 1470009489 incorrect
+    # 626031 incorrect
+    # 127544254 incorrect
     progress = checkProgress()
     loop = Loop(coordinate_list)
     rectangles = get_best_rectangles(coordinate_list)
