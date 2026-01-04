@@ -73,8 +73,50 @@ def get_enclosed_dir(coordinate_list):
         return "Right"
     raise ValueError
 
+class Edge():
+    def __init__(self, coordinate1, coordinate2, enclosed_dir):
+        self.x = range(*sorted([coordinate1[0], coordinate2[0]+1]))
+        self.y = range(*sorted([coordinate1[1], coordinate2[1]+1]))
+        self.directionOfTravel = get_direction(coordinate1, coordinate2)
+        self.insideLoopDirection = None
+        if enclosed_dir == "Left":
+            if self.directionOfTravel == "North":
+                self.insideLoopDirection = "West"
+
+            elif self.directionOfTravel == "South":
+                self.insideLoopDirection = "East"
+
+            elif self.directionOfTravel == "East":
+                self.insideLoopDirection = "North"
+            
+            elif self.directionOfTravel == "West":
+                self.insideLoopDirection = "South"
+
+        elif enclosed_dir == "Right":
+            if self.directionOfTravel == "North":
+                self.insideLoopDirection = "East"
+
+            elif self.directionOfTravel == "South":
+                self.insideLoopDirection = "West"
+
+            elif self.directionOfTravel == "East":
+                self.insideLoopDirection = "South"
+            
+            elif self.directionOfTravel == "West":
+                self.insideLoopDirection = "North"
+
+def get_edges(coordinate_list, enclosed_dir):
+    edges = []
+    for idx1 in range(len(coordinate_list)):
+        idx2 = idx1 + 1
+        if idx2 >= len(coordinate_list):
+            idx2 = 0
+        edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2], enclosed_dir))
+    return edges
+
 def solve_pt2(coordinate_list):
     enclosed_dir = get_enclosed_dir(coordinate_list)
+    edges = get_edges(coordinate_list, enclosed_dir)
     pass
 
 coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_text.split("\n") if len(l) > 0]
