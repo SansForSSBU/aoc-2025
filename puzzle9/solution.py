@@ -1,5 +1,6 @@
 from enum import Enum
 import math
+import statistics
 with open("puzzle9/input.txt", "r") as f:
     input_text = f.read()
 
@@ -65,15 +66,14 @@ class Rectangle():
         return get_edges(self.vertices())
     
     def contains_point(self, point):
-        # Excludes being on the edge.
         x = [self.v1[0], self.v2[0]]
-        x = range(min(x)+1, max(x))
+        x = range(min(x), max(x)+1)
         y = [self.v1[1], self.v2[1]]
-        y = range(min(y)+1, max(y))
+        y = range(min(y), max(y)+1)
         return point[0] in x and point[1] in y
     
     def midpoint(self):
-        return (math.mean(self.v1[0], self.v2[0]), math.mean(self.v1[1], self.v2[1]))
+        return (int(statistics.mean([self.v1[0], self.v2[0]])), int(statistics.mean([self.v1[1], self.v2[1]])))
 
 class Loop():
     def __init__(self, vertices):
@@ -173,11 +173,34 @@ def get_edges(coordinate_list):
         edges.append(Edge(v1, v2))
     return edges
 
+def do_edges_intersect(edge1, edge2):
+    x = sorted([edge1.x, edge2.x], key=lambda a: isinstance(a, range))
+    y = sorted([edge1.y, edge2.y], key=lambda a: isinstance(a, range))
+    if isinstance(x[0], int) and isinstance(x[1], int):
+        return False
+    return x[0] in x[1] and y[0] in y[1]
+
 def is_rectangle_legal(rectangle, corners, loop):
-    # If rectangle contains any vertices on its inside, false.
-    # If rectangle midpoint is not in loop, false.
-    # Otherwise true
-    pass
+    # If rectangle 1-inside rectangle intersects any lines, false.
+    v1, _, v2, _ = rectangle.vertices()
+    v1 = (v1[0] + 1, v1[1] + 1)
+    v2 = (v2[0] + 1, v2[1] + 1)
+    shrunk_rect = Rectangle(v1,v2)
+    shrunk_rect_edges = shrunk_rect.edges()
+    for edge1 in shrunk_rect_edges:
+        for edge2 in [e[0] for e in loop.edges]:
+            if do_edges_intersect(edge1, edge2): # intersect
+                return False
+    # Raycast to verify midpoint is inside the loop
+    midpoint = rectangle.midpoint()
+    eligible_north_edges = [edge for edge in loop.edges if edge[1] in [Direction.SOUTH, Direction.NORTH]]
+    eligible_north_edges = [edge for edge in eligible_north_edges if midpoint[0] in edge[0].x]
+    eligible_north_edges = [edge for edge in eligible_north_edges if edge[0].y >= midpoint[1]]
+    if len(eligible_north_edges) == 0: return False
+    eligible_north_edges.sort(key=lambda x: x[0].y)
+    if eligible_north_edges[0][1] == Direction.NORTH:
+        return False
+    return True
 
 
 
@@ -199,6 +222,7 @@ def saveProgress(idx):
 def solve_pt2(coordinate_list):
     # 242043982?
     # 2393897350 too high
+    # 1470009489 incorrect
     progress = checkProgress()
     loop = Loop(coordinate_list)
     rectangles = get_best_rectangles(coordinate_list)
