@@ -74,6 +74,8 @@ def do_edges_intersect(edge1, edge2):
     return x[0] in x[1] and y[0] in y[1]
 
 def is_rectangle_legal(rectangle, edges):
+    if rectangle.area() == 2393897350:
+        pass
     verticals = [edge for edge in edges if edge.orientation == "vertical"]
     horizontals = [edge for edge in edges if edge.orientation == "horizontal"]
     intersections = []
@@ -88,13 +90,30 @@ def is_rectangle_legal(rectangle, edges):
     
     return len(intersections) == 0
 
+def checkProgress():
+    progress = 0
+    try:
+        with open("puzzle9/progress.txt", "r") as f:
+            progress = int(f.read())
+    except Exception:
+        pass
+    return progress
+
+def saveProgress(idx):
+    with open("puzzle9/progress.txt", "w") as f:
+        f.write(str(idx))
+
 def solve_pt2(coordinate_list):
     # 2393897350 too high
+    progress = checkProgress()
     edges = get_edges(coordinate_list)
     rectangles = get_best_rectangles(coordinate_list)
-    for rectangle in rectangles:
+    for idx in range(progress, len(rectangles)):
+        rectangle = rectangles[idx]
         if is_rectangle_legal(rectangle, edges):
             return rectangle.area()
+        if idx % 100 == 0:
+            saveProgress(idx)
 
 coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_text.split("\n") if len(l) > 0]
 print("Part 1 ans:", solve_pt1(coordinate_list))
