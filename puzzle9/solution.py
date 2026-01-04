@@ -1,122 +1,55 @@
 with open("puzzle9/input.txt", "r") as f:
     input_text = f.read()
 
-def get_rectangle_area(coord1, coord2):
-    return (abs(coord1[0] - coord2[0]) + 1) * (abs(coord1[1] - coord2[1]) + 1)
-
-def solve_pt1(coordinate_list):
-    best_area = 0
-    for i in range(len(coordinate_list)):
-        for j in range(i+1, len(coordinate_list)):
-            area = get_rectangle_area(coordinate_list[i], coordinate_list[j])
-            if area > best_area:
-                best_area = area
-    return best_area
-
-def get_direction(coord1, coord2):
-    if coord1[0] == coord2[0]:
-        if coord1[1] < coord2[1]:
-            return "North"
-        elif coord1[1] > coord2[1]:
-            return "South"
-    elif coord1[1] == coord2[1]:
-        if coord1[0] < coord2[0]:
-            return "East"
-        elif coord1[0] > coord2[0]:
-            return "West"
-    raise ValueError
-
-def get_rotation(direction1, direction2):
-    # +1 for Right, -1 for Left
-    if direction1 == "North":
-        if direction2 == "East":
-            return 90
-        elif direction2 == "West":
-            return -90
-    elif direction1 == "South":
-        if direction2 == "West":
-            return 90
-        if direction2 == "East":
-            return -90
-    elif direction1 == "East":
-        if direction2 == "South":
-            return 90
-        elif direction2 == "North":
-            return -90
-    elif direction1 == "West":
-        if direction2 == "North":
-            return 90
-        elif direction2 == "South":
-            return -90
-    raise ValueError
-
-def get_turning_number(coordinate_list):
-    directions = []
-    for coord1_idx in range(len(coordinate_list)):
-        coord2_idx = coord1_idx + 1
-        if coord2_idx >= len(coordinate_list):
-            coord2_idx = 0
-        directions.append(get_direction(coordinate_list[coord1_idx], coordinate_list[coord2_idx]))
-    turning_number = 0
-    for coord1_idx in range(len(directions)):
-        coord2_idx = coord1_idx + 1
-        if coord2_idx >= len(directions):
-            coord2_idx = 0
-        turning_number += get_rotation(directions[coord1_idx], directions[coord2_idx])
-    return turning_number
-
-def get_enclosed_dir(coordinate_list):
-    turning_number = get_turning_number(coordinate_list)
-    if turning_number == -360:
-        return "Left"
-    elif turning_number == +360:
-        return "Right"
-    raise ValueError
 
 class Edge():
-    def __init__(self, coordinate1, coordinate2, enclosed_dir):
+    def __init__(self, coordinate1, coordinate2):
         self.x = range(*sorted([coordinate1[0], coordinate2[0]+1]))
         self.y = range(*sorted([coordinate1[1], coordinate2[1]+1]))
-        self.directionOfTravel = get_direction(coordinate1, coordinate2)
-        self.insideLoopDirection = None
-        if enclosed_dir == "Left":
-            if self.directionOfTravel == "North":
-                self.insideLoopDirection = "West"
+    
+    def __str__(self):
+        return f"<Edge {self.x} {self.y}>"
 
-            elif self.directionOfTravel == "South":
-                self.insideLoopDirection = "East"
+    def __repr__(self):
+        return self.__str__()
 
-            elif self.directionOfTravel == "East":
-                self.insideLoopDirection = "North"
-            
-            elif self.directionOfTravel == "West":
-                self.insideLoopDirection = "South"
+class Rectangle():
+    def __init__(self, v1, v2):
+        self.v1 = v1
+        self.v2 = v2
+    
+    def area(self):
+        return (abs(self.v1[0] - self.v2[0]) + 1) * (abs(self.v1[1] - self.v2[1]) + 1)
+    
 
-        elif enclosed_dir == "Right":
-            if self.directionOfTravel == "North":
-                self.insideLoopDirection = "East"
+def get_best_rectangles(vertex_list):
+    rectangles = []
+    for i in range(len(vertex_list)):
+        for j in range(i+1, len(vertex_list)):
+            v1 = vertex_list[i]
+            v2 = vertex_list[j]
+            rectangles.append(Rectangle(v1, v2))
+    rectangles.sort(key=lambda r: r.area(), reverse=True)
+    return rectangles
 
-            elif self.directionOfTravel == "South":
-                self.insideLoopDirection = "West"
+def solve_pt1(coordinate_list):
+    best_rectangle = get_best_rectangles(coordinate_list)[0]
+    return best_rectangle.area()
 
-            elif self.directionOfTravel == "East":
-                self.insideLoopDirection = "South"
-            
-            elif self.directionOfTravel == "West":
-                self.insideLoopDirection = "North"
+def is_rectangle_legal(coord1, coord2):
+    pass
 
-def get_edges(coordinate_list, enclosed_dir):
+def get_edges(coordinate_list):
     edges = []
     for idx1 in range(len(coordinate_list)):
         idx2 = idx1 + 1
         if idx2 >= len(coordinate_list):
             idx2 = 0
-        edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2], enclosed_dir))
+        edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2]))
     return edges
 
 def solve_pt2(coordinate_list):
-    enclosed_dir = get_enclosed_dir(coordinate_list)
-    edges = get_edges(coordinate_list, enclosed_dir)
+    edges = get_edges(coordinate_list)
     pass
 
 coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_text.split("\n") if len(l) > 0]
