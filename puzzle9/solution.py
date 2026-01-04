@@ -179,7 +179,7 @@ def do_edges_intersect(edge1, edge2):
         return False
     return x[0] in x[1] and y[0] in y[1]
 
-def is_rectangle_legal(rectangle, corners, loop):
+def is_rectangle_legal(rectangle, loop):
     # Method: Check if midpoint is inside the loop. If it isn't, return False.
     # If it is, check for any intersecting lines. 
     # If there are no intersecting lines, the rectangle must either be entirely inside the loop or entirely outside the loop.
@@ -192,10 +192,9 @@ def is_rectangle_legal(rectangle, corners, loop):
     eligible_north_edges = [edge for edge in eligible_north_edges if edge[0].y >= midpoint[1]]
     if len(eligible_north_edges) == 0: return False
     eligible_north_edges.sort(key=lambda x: x[0].y)
-    if eligible_north_edges[0][1] == Direction.SOUTH:
+    if eligible_north_edges[0][1] == Direction.NORTH:
         return False
     # If rectangle 1-inside rectangle intersects any lines, false.
-    
     shrunk_rect = rectangle.get_shrunk_rect()
     shrunk_rect_edges = shrunk_rect.edges()
     for edge1 in shrunk_rect_edges:
@@ -231,17 +230,12 @@ def saveProgress(idx):
         f.write(str(idx))
 
 def solve_pt2(coordinate_list):
-    # 242043982?
-    # 2393897350 too high
-    # 1470009489 incorrect
-    # 626031 incorrect
-    # 127544254 incorrect
     progress = checkProgress()
     loop = Loop(coordinate_list)
     rectangles = get_best_rectangles(coordinate_list)
     for idx in range(progress, len(rectangles)):
         rectangle = rectangles[idx]
-        if is_rectangle_legal(rectangle, coordinate_list, loop):
+        if is_rectangle_legal(rectangle, loop):
             return rectangle.area()
         if idx % 100 == 0:
             saveProgress(idx)
