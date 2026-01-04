@@ -6,6 +6,12 @@ class Edge():
     def __init__(self, coordinate1, coordinate2):
         self.x = range(*sorted([coordinate1[0], coordinate2[0]+1]))
         self.y = range(*sorted([coordinate1[1], coordinate2[1]+1]))
+        if len(self.x) == 1:
+            self.x = self.x[0]
+            self.orientation = "vertical"
+        if len(self.y) == 1:
+            self.y = self.y[0]
+            self.orientation = "horizontal"
     
     def __str__(self):
         return f"<Edge {self.x} {self.y}>"
@@ -57,8 +63,26 @@ def get_edges(coordinate_list):
         edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2]))
     return edges
 
+def do_edges_intersect(edge1, edge2):
+    x = sorted([edge1.x, edge2.x], key=lambda a: isinstance(a, range))
+    y = sorted([edge1.y, edge2.y], key=lambda a: isinstance(a, range))
+    return x[0] in x[1] and y[0] in y[1]
+
 def is_rectangle_legal(rectangle, edges):
-    return True
+    verticals = [edge for edge in edges if edge.orientation == "vertical"]
+    horizontals = [edge for edge in edges if edge.orientation == "horizontal"]
+    intersections = []
+    for rectEdge in rectangle.edges():
+        if rectEdge.orientation == "vertical":
+            wallEdges = horizontals
+        elif rectEdge.orientation == "horizontal":
+            wallEdges = verticals
+        
+        for wallEdge in wallEdges:
+            if do_edges_intersect(rectEdge, wallEdge):
+                intersections.append(wallEdge)    
+    pass
+    return len(intersections) == 4
 
 def solve_pt2(coordinate_list):
     edges = get_edges(coordinate_list)
