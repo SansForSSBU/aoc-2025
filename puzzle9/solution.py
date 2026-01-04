@@ -3,15 +3,20 @@ with open("puzzle9/input.txt", "r") as f:
 
 
 class Edge():
-    def __init__(self, coordinate1, coordinate2):
+    def __init__(self, coordinate1, coordinate2, include_corners=True):
         self.x = range(*sorted([coordinate1[0], coordinate2[0]+1]))
         self.y = range(*sorted([coordinate1[1], coordinate2[1]+1]))
         if len(self.x) == 1:
             self.x = self.x[0]
             self.orientation = "vertical"
+            if not include_corners:
+                self.y = range(self.y[1], self.y[-1])
         if len(self.y) == 1:
             self.y = self.y[0]
             self.orientation = "horizontal"
+            if not include_corners:
+                self.x = range(self.x[1], self.x[-1])
+        pass
     
     def __str__(self):
         return f"<Edge {self.x} {self.y}>"
@@ -35,7 +40,7 @@ class Rectangle():
         return (va,vb,vc,vd)
     
     def edges(self):
-        return get_edges(self.vertices())
+        return get_edges(self.vertices(), include_corners=False)
 
 def get_best_rectangles(vertex_list):
     rectangles = []
@@ -54,13 +59,13 @@ def solve_pt1(coordinate_list):
 def is_rectangle_legal(coord1, coord2):
     pass
 
-def get_edges(coordinate_list):
+def get_edges(coordinate_list, include_corners=True):
     edges = []
     for idx1 in range(len(coordinate_list)):
         idx2 = idx1 + 1
         if idx2 >= len(coordinate_list):
             idx2 = 0
-        edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2]))
+        edges.append(Edge(coordinate_list[idx1], coordinate_list[idx2], include_corners=include_corners))
     return edges
 
 def do_edges_intersect(edge1, edge2):
@@ -77,12 +82,11 @@ def is_rectangle_legal(rectangle, edges):
             wallEdges = horizontals
         elif rectEdge.orientation == "horizontal":
             wallEdges = verticals
-        
         for wallEdge in wallEdges:
             if do_edges_intersect(rectEdge, wallEdge):
-                intersections.append(wallEdge)    
-    pass
-    return len(intersections) == 4
+                intersections.append(wallEdge)
+    
+    return len(intersections) == 0
 
 def solve_pt2(coordinate_list):
     edges = get_edges(coordinate_list)
