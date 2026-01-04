@@ -74,10 +74,11 @@ def do_edges_intersect(edge1, edge2):
     return x[0] in x[1] and y[0] in y[1]
 
 def is_rectangle_legal(rectangle, edges):
-    if rectangle.area() == 2393897350:
-        pass
     verticals = [edge for edge in edges if edge.orientation == "vertical"]
     horizontals = [edge for edge in edges if edge.orientation == "horizontal"]
+    if rectangle.area() == 2393897350:
+        # TODO: Figure out why this rectangle is not valid
+        pass
     intersections = []
     for rectEdge in rectangle.edges():
         if rectEdge.orientation == "vertical":
