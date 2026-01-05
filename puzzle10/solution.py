@@ -90,7 +90,8 @@ class Equation():
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         terms = []
         for idx, coefficient in enumerate(self.coefficients):
-            terms.append(f"{coefficient}{alphabet[idx]}")
+            if coefficient != 0:
+                terms.append(f"{alphabet[idx]}")
         LHS = " + ".join(terms)
         return f"<{LHS} = {self.rhs}>"
     
@@ -122,10 +123,10 @@ def get_equations(buttons, joltages):
     pass
     equations = []
     for idx1, joltage in enumerate(joltages):
-        coeffs = [float(0)]*len(buttons)
+        coeffs = [0]*len(buttons)
         for idx2, button in enumerate(buttons):
             if idx1 in button:
-                coeffs[idx2] = float(1)
+                coeffs[idx2] = 1
         equations.append(Equation(coeffs, joltage))
     return equations
 
@@ -146,36 +147,106 @@ def get_most_common_term(simeq):
             best = num_occurrences
     return best_idx
 
-def solve_simeq(simeq):
-    total_num_terms = len(simeq[0].coefficients)
-    while True:
-        subtractable_eq = simeq.pop(0)
-        for idx, eq in enumerate(simeq):
-            new_eq = eq.subtract_other_eq(subtractable_eq)
-            if new_eq.num_terms() <= eq.num_terms():
-                simeq[idx] = new_eq
-            new_eq = eq.subtract_other_eq(subtractable_eq.multiplied(-1))
-            if new_eq.num_terms() <= eq.num_terms():
-                simeq[idx] = new_eq
-
-        simeq.append(subtractable_eq)
-        pass
+def compute_new_bounds(simeq, upper_bounds, lower_bounds):
+    num_terms = len(simeq[0].coefficients)
+    changed = False
+    for term_idx in range(num_terms):
         for eq in simeq:
-            if eq.num_terms() == 1:
-                pass
-        # TODO: Search for 1 coeff = 1 number cases now in simeq.
+            if eq.coefficients[term_idx] == 1:
+                other_terms = list(range(num_terms))
+                other_terms.remove(term_idx)
+                other_terms = [term for term in other_terms if eq.coefficients[term] == 1]
+                # Compute new upper bounds
+                this_eq_ub = eq.rhs
+                for other_term in other_terms:
+                    this_eq_ub -= lower_bounds[other_term]
+                new_upper_bound = min(this_eq_ub, upper_bounds[term_idx])
+                if new_upper_bound != upper_bounds[term_idx]:
+                    upper_bounds[term_idx] = new_upper_bound
+                    changed = True
+
+                # Compute new lower bounds
+                this_eq_lb = eq.rhs
+                for other_term in other_terms:
+                    this_eq_lb -= upper_bounds[other_term]
+                new_lower_bound = max(this_eq_lb, lower_bounds[term_idx])
+                if new_lower_bound != lower_bounds[term_idx]:
+                    lower_bounds[term_idx] = new_lower_bound
+                    changed = True
+    return changed
+
+
+def setup_bounds(simeq):
+    num_terms = len(simeq[0].coefficients)
+    upper_bounds = {}
+    lower_bounds = {}
+    for i in range(num_terms):
+        upper_bounds[i] = math.inf
+        lower_bounds[i] = 0
+    return upper_bounds, lower_bounds
+
+def get_bounds(simeq, existing_bounds=None):
+    upper_bounds, lower_bounds = setup_bounds(simeq)
+    if existing_bounds is not None:
+        for k,v in existing_bounds.items():
+            lower_bounds[k] = v[0]
+            upper_bounds[k] = v[1]
+    while True:
+        changed = compute_new_bounds(simeq, upper_bounds, lower_bounds)
+        if not changed:
+            # We want to press the button which reduces the upper bounds of as many buttons which can have their upper bounds reduced as possible.
+            range_sizes = [abs(upper_bounds[k]-lower_bounds[k])+1 for k in upper_bounds.keys()]
+            break
+        
+    bounds = {}
+    for k in upper_bounds.keys():
+        bounds[k] = (lower_bounds[k], upper_bounds[k])
+    return bounds
+            
+
+def solve_simeq(simeq):
+    bounds = get_bounds(simeq)
+    return [bound[0] for bound in bounds.values()]
+
+def get_matches(priorities, candidate):
+    matches = 0
+    for priority in priorities:
+        if priority in candidate:
+            matches += 1
+        else:
+            return matches * 10000 + len(candidate) # God damn this is a hack. Length of candidate needs to be baked on.
 
 def solve_machine_pt2(machine):
-    pass
+    presses = 0
     buttons = [tuple(e) for e in machine.buttons]
     joltages = machine.joltages
+    original_joltages = deepcopy(joltages)
     simeq = get_equations(buttons, joltages)
-    answers = solve_simeq(simeq)
-    # The best buttons affect the most joltages. Optimize to press these as much as possible?
-    # Take lowest joltage. Get buttons which affect it.
-    # Filter by which include the largest joltage.
-    # If none do, consider the 2nd largest joltage.
-    # If multiple do, consider the 2nd largest joltage.
+    min_presses = solve_simeq(simeq)
+    for idx, num_presses in enumerate(min_presses):
+        button = buttons[idx]
+        for jolt_idx in button:
+            joltages[jolt_idx] -= num_presses
+    presses += sum(min_presses)
+    print(presses, joltages)
+    if sum(joltages) == 0:
+        pass
+    pass
+    return 0
+    while sum(joltages) != 0:
+        print(joltages)
+        priorities = sorted([idx for idx, v in enumerate(joltages) if v > 1],key=lambda i:joltages[i],reverse=True)
+        candidates = [button for button in buttons if all([hit in priorities for hit in button])]
+        candidates.sort(key=lambda x:get_matches(priorities, x), reverse=True)
+        assert len(candidates) > 0
+        presses += 1
+        for idx in candidates[0]:
+            joltages[idx] -= 1
+        pass
+        # Figure out the correct button to press.
+        # The correct button must be part of the set which hits the highest joltage.
+        pass
+        
     pass
 
 def solve_pt1(machines):
