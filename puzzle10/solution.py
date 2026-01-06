@@ -237,7 +237,7 @@ def solve_machine_pt2(machine):
         rhs = dependent_variables[idx]
         problem += lhs >= rhs
         problem += lhs <= rhs
-    status = problem.solve()
+    status = problem.solve(PULP_CBC_CMD(msg=False))
     return sum([int(var.value()) for var in variables])
 
 def solve_pt1(machines):
