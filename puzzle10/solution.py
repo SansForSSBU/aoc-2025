@@ -3,6 +3,8 @@ with open("puzzle10/input.txt", "r") as f:
 
 from copy import deepcopy
 from itertools import permutations, combinations
+import numpy as np
+from pulp import *
 import math
 
 def parse_button(button_text):
@@ -222,32 +224,21 @@ def solve_machine_pt2(machine):
     joltages = machine.joltages
     original_joltages = deepcopy(joltages)
     simeq = get_equations(buttons, joltages)
-    min_presses = solve_simeq(simeq)
-    for idx, num_presses in enumerate(min_presses):
-        button = buttons[idx]
-        for jolt_idx in button:
-            joltages[jolt_idx] -= num_presses
-    presses += sum(min_presses)
-    print(presses, joltages)
-    if sum(joltages) == 0:
-        pass
-    pass
-    return 0
-    while sum(joltages) != 0:
-        print(joltages)
-        priorities = sorted([idx for idx, v in enumerate(joltages) if v > 1],key=lambda i:joltages[i],reverse=True)
-        candidates = [button for button in buttons if all([hit in priorities for hit in button])]
-        candidates.sort(key=lambda x:get_matches(priorities, x), reverse=True)
-        assert len(candidates) > 0
-        presses += 1
-        for idx in candidates[0]:
-            joltages[idx] -= 1
-        pass
-        # Figure out the correct button to press.
-        # The correct button must be part of the set which hits the highest joltage.
-        pass
-        
-    pass
+    coefficients = np.array([eq.coefficients for eq in simeq])
+    dependent_variables = np.array([eq.rhs for eq in simeq])
+    n=len(coefficients[0])
+    variables = []
+    problem = LpProblem("MinimizeSum", LpMinimize)
+    for i in range(n):
+        variables.append(LpVariable(f"x{i}", 0, cat=LpInteger))
+    problem += sum(variables)
+    for idx, coeff in enumerate(coefficients):
+        lhs = sum([c*v for c, v in zip(coeff, variables)])
+        rhs = dependent_variables[idx]
+        problem += lhs >= rhs
+        problem += lhs <= rhs
+    status = problem.solve()
+    return sum([int(var.value()) for var in variables])
 
 def solve_pt1(machines):
     return sum([solve_machine_pt1(machine) for machine in machines])
