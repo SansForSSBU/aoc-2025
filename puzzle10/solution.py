@@ -219,10 +219,8 @@ def get_matches(priorities, candidate):
             return matches * 10000 + len(candidate) # God damn this is a hack. Length of candidate needs to be baked on.
 
 def solve_machine_pt2(machine):
-    presses = 0
     buttons = [tuple(e) for e in machine.buttons]
     joltages = machine.joltages
-    original_joltages = deepcopy(joltages)
     simeq = get_equations(buttons, joltages)
     coefficients = np.array([eq.coefficients for eq in simeq])
     dependent_variables = np.array([eq.rhs for eq in simeq])
