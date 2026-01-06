@@ -10,18 +10,24 @@ for line in lines:
 
 
 def find_n_routes(graph, start, end):
+    # 599
     # TODO: Optimize
-    unexplored_routes = [(start, start)]
+    unexplored_routes = [start]
+    num_routes = {start: 1}
     routes = set()
+    idx = 0
     while len(unexplored_routes) > 0:
-        route, node = unexplored_routes.pop(0)
-        if node == end:
-            routes.add(route)
+        node = unexplored_routes.pop(0)
+        if node == "out":
             continue
         outputs = graph[node]
         for output in outputs:
-            unexplored_routes.append((f"{route},{node}", output))
-    return len(routes)
+            num_routes[output] = num_routes.get(output,0) + num_routes[node]
+            unexplored_routes.append(output)
+        if node == end:
+            continue
+        num_routes[node] = 0
+    return num_routes[end]
 
 def solve_pt1(graph):
     return find_n_routes(graph, "you", "out")
