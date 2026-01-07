@@ -194,17 +194,9 @@ def do_edges_intersect(edge1, edge2):
     return x[0] in x[1] and y[0] in y[1]
 
 def is_rectangle_legal(rectangle, loop):
-    # Method: Check if midpoint is inside the loop. If it isn't, return False.
-    # If it is, check for any intersecting lines. 
-    # If there are no intersecting lines, the rectangle must either be entirely inside the loop or entirely outside the loop.
-    # Because the midpoint was inside the loop and the rectangle is either entirely inside or out, therefore the entire rectangle must be.
-    
-    # Raycast to verify midpoint is inside the loop
     if not loop.is_in_loop(rectangle.midpoint()):
         return False
-    # If rectangle 1-inside rectangle intersects any lines, false.
-    shrunk_rect = rectangle.get_shrunk_rect()
-    shrunk_rect_edges = shrunk_rect.edges()
+    shrunk_rect_edges = rectangle.get_shrunk_rect().edges()
     for edge in shrunk_rect_edges:
         if loop.intersects_with(edge):
             return False
