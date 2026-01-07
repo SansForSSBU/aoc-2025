@@ -5,11 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
             "program": "src/main.py",
-            "args": "1"
+            "args": ["${input:programArgs}"]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "programArgs",
+            "type": "promptString",
+            "description": "Which puzzle to debug?"
         }
     ]
 }
