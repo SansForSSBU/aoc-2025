@@ -28,8 +28,11 @@ def solve_problem(problem):
     total_occupied = sum([v*sum(sum(presents[i])) for i,v in enumerate(nums)])
     if total_occupied > total_space:
         return False
-    return True
-    pass
+    
+    if total_space >= 9 * sum(nums):
+        return True
+    
+    raise Exception("Naive solution won't work.")
 
 n = 0
 for problem in problems:
