@@ -90,6 +90,8 @@ class Loop():
         self.vertices = vertices
         self.enclosed_dir = self.get_loop_side(vertices)
         self.edges = []
+        self.horizontal_edges = {}
+        self.vertical_edges = {}
         for idx2 in range(len(vertices)):
             idx1 = idx2 - 1
             v1 = vertices[idx1]
@@ -98,6 +100,18 @@ class Loop():
             inside_dir = direction.turn_90_degrees(self.enclosed_dir)
             edge = Edge(v1, v2)
             self.edges.append((edge, inside_dir))
+            if edge.orientation == Orientation.VERTICAL:
+                edges = self.vertical_edges.get(edge.x, None)
+                if edges == None:
+                    edges = []
+                edges.append(edge)
+                self.vertical_edges[edge.x] = edges
+            elif edge.orientation == Orientation.HORIZONTAL:
+                edges = self.horizontal_edges.get(edge.y, None)
+                if edges == None:
+                    edges = []
+                edges.append(edge)
+                self.horizontal_edges[edge.y] = edges
 
     def get_turning_number(self, coordinate_list):
         directions = []
@@ -171,7 +185,7 @@ def get_edges(coordinate_list):
 def do_edges_intersect(edge1, edge2):
     x = sorted([edge1.x, edge2.x], key=lambda a: isinstance(a, range))
     y = sorted([edge1.y, edge2.y], key=lambda a: isinstance(a, range))
-    if isinstance(x[0], int) and isinstance(x[1], int):
+    if type(x[0]) == type(x[1]):
         return False
     return x[0] in x[1] and y[0] in y[1]
 
@@ -194,18 +208,20 @@ def is_rectangle_legal(rectangle, loop):
     shrunk_rect = rectangle.get_shrunk_rect()
     shrunk_rect_edges = shrunk_rect.edges()
     for edge1 in shrunk_rect_edges:
-        intersects = []
-        for edge2 in [e[0] for e in loop.edges]:
-            if do_edges_intersect(edge1, edge2): # intersect
-                pos = edge2.x if isinstance(edge2.x, int) else edge2.y
-                intersects.append(pos)
-        intersects.sort()
-        for idx in range(len(intersects)-1):
-            if abs(intersects[idx]-intersects[idx+1]) == 1:
-                raise Exception("Assumption violated. Two parallel edges are next to each other.")
-        if len(intersects) > 0:
-            return False
-    
+        if edge1.orientation == Orientation.HORIZONTAL:
+            x = edge1.x
+            eligible_edges = [v for k,v in loop.vertical_edges.items() if k in x]
+            for l in eligible_edges:
+                for e in l:
+                    if edge1.y in e.y:
+                        return False
+        elif edge1.orientation == Orientation.VERTICAL:
+            y = edge1.y
+            eligible_edges = [v for k,v in loop.horizontal_edges.items() if k in y]
+            for l in eligible_edges:
+                for e in l:
+                    if edge1.x in e.x:
+                        return False
     return True
 
 def solve_pt2(coordinate_list):
