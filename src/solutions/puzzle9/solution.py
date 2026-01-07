@@ -1,7 +1,6 @@
 from enum import Enum
-import math
-from copy import deepcopy
 import statistics
+import itertools
 class Side(Enum):
     LEFT=0
     RIGHT=1
@@ -40,11 +39,6 @@ class Edge():
     
     def length(self):
         return len([a for a in [self.x,self.y] if isinstance(a, range)][0])
-    def __str__(self):
-        return f"<Edge {self.x} {self.y}>"
-
-    def __repr__(self):
-        return self.__str__()
 
 class Rectangle():
     def __init__(self, v1, v2):
@@ -56,10 +50,6 @@ class Rectangle():
         _v1, _, _v2, _ = self.vertices()
         v1 = (_v1[0] + units, _v1[1] + units)
         v2 = (_v2[0] - units, _v2[1] - units)
-        _y_diff = _v2[1] - _v1[1]
-        _x_diff = _v2[0] - _v1[0]
-        y_diff = v2[1] - v1[1]
-        x_diff = v2[0] - v1[0]
         return Rectangle(v1, v2)
 
     def area(self):
@@ -104,14 +94,17 @@ class Loop():
                 edges = self.vertical_edges.get(edge.x, None)
                 if edges == None:
                     edges = []
-                edges.append(edge)
+                edges.append((edge, inside_dir))
                 self.vertical_edges[edge.x] = edges
             elif edge.orientation == Orientation.HORIZONTAL:
                 edges = self.horizontal_edges.get(edge.y, None)
                 if edges == None:
                     edges = []
-                edges.append(edge)
+                edges.append((edge, inside_dir))
                 self.horizontal_edges[edge.y] = edges
+
+    def is_in_loop(self, point):
+        pass
 
     def get_turning_number(self, coordinate_list):
         directions = []
@@ -143,7 +136,6 @@ class Loop():
             raise ValueError
 
     def get_rotation(self, direction1, direction2):
-        # +1 for Right, -1 for Left
         if direction1.turn_90_degrees(Side.RIGHT) == direction2:
             return 90
         elif direction1.turn_90_degrees(Side.LEFT) == direction2:
@@ -153,42 +145,37 @@ class Loop():
     
     def get_loop_side(self, coordinate_list):
         turning_number = self.get_turning_number(coordinate_list)
-        if turning_number == -360:
+        if turning_number < 0:
             return Side.LEFT
-        elif turning_number == +360:
+        elif turning_number > 0:
             return Side.RIGHT
-        raise ValueError
+        raise ValueError()
+
+    def is_in_loop(self, point):
+        eligible_north_edges = [v for k,v in self.horizontal_edges.items() if k >= point[1]]
+        eligible_north_edges = list(itertools.chain.from_iterable(eligible_north_edges))
+        if len(eligible_north_edges) == 0: return False
+        eligible_north_edges.sort(key=lambda x: x[0].y)
+        if eligible_north_edges[0][1] == Direction.NORTH:
+            return False
+        return True
     
-    def intersections(self, edge1):
+    def intersects_with(self, edge1):
         if edge1.orientation == Orientation.HORIZONTAL:
             x = edge1.x
             eligible_edges = [v for k,v in self.vertical_edges.items() if k in x]
             for l in eligible_edges:
                 for e in l:
-                    if edge1.y in e.y:
+                    if edge1.y in e[0].y:
                         return True
         elif edge1.orientation == Orientation.VERTICAL:
             y = edge1.y
             eligible_edges = [v for k,v in self.horizontal_edges.items() if k in y]
             for l in eligible_edges:
                 for e in l:
-                    if edge1.x in e.x:
+                    if edge1.x in e[0].x:
                         return True
         return False
-
-def get_best_rectangles(vertex_list):
-    rectangles = []
-    for i in range(len(vertex_list)):
-        for j in range(i+1, len(vertex_list)):
-            v1 = vertex_list[i]
-            v2 = vertex_list[j]
-            rectangles.append(Rectangle(v1, v2))
-    rectangles.sort(key=lambda r: r.area(), reverse=True)
-    return rectangles
-
-def solve_pt1(coordinate_list):
-    best_rectangle = get_best_rectangles(coordinate_list)[0]
-    return best_rectangle.area()
 
 def get_edges(coordinate_list):
     edges = []
@@ -213,21 +200,29 @@ def is_rectangle_legal(rectangle, loop):
     # Because the midpoint was inside the loop and the rectangle is either entirely inside or out, therefore the entire rectangle must be.
     
     # Raycast to verify midpoint is inside the loop
-    midpoint = rectangle.midpoint()
-    eligible_north_edges = [edge for edge in loop.edges if edge[1] in [Direction.SOUTH, Direction.NORTH]]
-    eligible_north_edges = [edge for edge in eligible_north_edges if midpoint[0] in edge[0].x]
-    eligible_north_edges = [edge for edge in eligible_north_edges if edge[0].y >= midpoint[1]]
-    if len(eligible_north_edges) == 0: return False
-    eligible_north_edges.sort(key=lambda x: x[0].y)
-    if eligible_north_edges[0][1] == Direction.NORTH:
+    if not loop.is_in_loop(rectangle.midpoint()):
         return False
     # If rectangle 1-inside rectangle intersects any lines, false.
     shrunk_rect = rectangle.get_shrunk_rect()
     shrunk_rect_edges = shrunk_rect.edges()
-    for edge1 in shrunk_rect_edges:
-        if loop.intersections(edge1):
+    for edge in shrunk_rect_edges:
+        if loop.intersects_with(edge):
             return False
     return True
+
+def get_best_rectangles(vertex_list):
+    rectangles = []
+    for i in range(len(vertex_list)):
+        for j in range(i+1, len(vertex_list)):
+            v1 = vertex_list[i]
+            v2 = vertex_list[j]
+            rectangles.append(Rectangle(v1, v2))
+    rectangles.sort(key=lambda r: r.area(), reverse=True)
+    return rectangles
+
+def solve_pt1(coordinate_list):
+    best_rectangle = get_best_rectangles(coordinate_list)[0]
+    return best_rectangle.area()
 
 def solve_pt2(coordinate_list):
     loop = Loop(coordinate_list)
