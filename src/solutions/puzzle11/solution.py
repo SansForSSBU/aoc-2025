@@ -1,13 +1,3 @@
-with open("inputs/11.txt") as f:
-    input_text = f.read()
-lines = [l for l in input_text.split("\n") if len(l) > 0]
-
-connections = {}
-for line in lines:
-    in_node, out_nodes = line.split(": ")
-    out_nodes = out_nodes.split(" ")
-    connections[in_node] = out_nodes
-
 def get_upstream_nodes(graph, node):
     return [k for k,v in graph.items() if node in v]
 
@@ -32,16 +22,8 @@ def find_n_routes(graph, start, end):
 
 def solve_pt1(graph):
     return find_n_routes(graph, "you", "out")
-    
 
 def solve_pt2(graph):
-    # 11350111374360 too low
-    # 13620133649232 too low
-    # 247031466393430 total (no restrictions)
-    # 21677843348293140 wrong
-    # 393474305030400
-    #n0 = find_n_routes(graph, "svr", "out")
-
     n1 = find_n_routes(graph, "svr", "fft")
     n2 = find_n_routes(graph, "fft", "dac")
     n3 = find_n_routes(graph, "dac", "out")
@@ -52,5 +34,13 @@ def solve_pt2(graph):
 
     return n1*n2*n3+n4*n5*n6
 
-print("Part 1 ans:", solve_pt1(connections))
-print("Part 2 ans:", solve_pt2(connections))
+def main(input_file):
+    lines = [l for l in input_file.split("\n") if len(l) > 0]
+    connections = {}
+    for line in lines:
+        in_node, out_nodes = line.split(": ")
+        out_nodes = out_nodes.split(" ")
+        connections[in_node] = out_nodes
+    pt1_ans = solve_pt1(connections)
+    pt2_ans = solve_pt2(connections)
+    return (pt1_ans, pt2_ans)

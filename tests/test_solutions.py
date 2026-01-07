@@ -1,9 +1,16 @@
 import pytest
-from solutions.puzzle1.solution import main as solution1
+import importlib
+import json
 
-def test_solution1():
-    input_path = "tests/my_inputs/1.txt"
-    with open(input_path, "r") as f:
-        input_text = f.read()
-    answers = solution1(input_text)
-    assert answers == (1052, 6295)
+def test_solutions():
+    with open("tests/my_inputs/answers.txt", "r") as f:
+        answers = json.load(f)
+    print(answers)
+    for puzzle_num in range(1, 13):
+        module_name = f"solutions.puzzle{puzzle_num}.solution"
+        solution = importlib.import_module(module_name)
+        input_path = f"tests/my_inputs/{puzzle_num}.txt"
+        with open(input_path, "r") as f:
+            input_text = f.read()
+        answer = solution.main(input_text)
+        assert answer == tuple(answers[str(puzzle_num)])

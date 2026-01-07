@@ -2,10 +2,6 @@ from enum import Enum
 import math
 from copy import deepcopy
 import statistics
-with open("inputs/9.txt", "r") as f:
-    input_text = f.read()
-
-
 class Side(Enum):
     LEFT=0
     RIGHT=1
@@ -219,6 +215,8 @@ def solve_pt2(coordinate_list):
         if is_rectangle_legal(rectangle, loop):
             return rectangle.area()
 
-coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_text.split("\n") if len(l) > 0]
-print("Part 1 ans:", solve_pt1(coordinate_list))
-print("Part 2 ans:", solve_pt2(coordinate_list))
+def main(input_file):
+    coordinate_list = [tuple([int(x) for x in l.split(",")]) for l in input_file.split("\n") if len(l) > 0]
+    pt1_ans = solve_pt1(coordinate_list)
+    pt2_ans = solve_pt2(coordinate_list)
+    return (pt1_ans, pt2_ans)

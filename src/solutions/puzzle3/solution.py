@@ -1,7 +1,3 @@
-with open("inputs/3.txt", "r") as f:
-    input_text = f.read()
-lines = [l for l in input_text.split("\n") if len(l)>0]
-
 def get_max_joltage(line, bulbs):
     nums = [int(x) for x in list(line)]
     ret = ""
@@ -17,5 +13,8 @@ def get_max_joltage(line, bulbs):
         ret = ret + str(largest)
     return int(ret)
 
-print("Part 1 answer:", sum([get_max_joltage(l,2) for l in lines]))
-print("Part 2 answer:", sum([get_max_joltage(l,12) for l in lines]))
+def main(input_file):
+    lines = [l for l in input_file.split("\n") if len(l)>0]
+    pt1_ans = sum([get_max_joltage(l,2) for l in lines])
+    pt2_ans = sum([get_max_joltage(l,12) for l in lines])
+    return (pt1_ans, pt2_ans)

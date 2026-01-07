@@ -1,6 +1,3 @@
-with open("inputs/10.txt", "r") as f:
-    input_text = f.read()
-
 from copy import deepcopy
 from itertools import permutations, combinations
 import numpy as np
@@ -244,6 +241,8 @@ def solve_pt1(machines):
 def solve_pt2(machines):
     return sum([solve_machine_pt2(machine) for machine in machines])
 
-machines = parse_input(input_text)
-print("Part 1 answer:", solve_pt1(machines))
-print("Part 2 answer:", solve_pt2(machines))
+def main(input_file):
+    machines = parse_input(input_file)
+    pt1_ans = solve_pt1(machines)
+    pt2_ans = solve_pt2(machines)
+    return (pt1_ans, pt2_ans)

@@ -1,10 +1,7 @@
 import numpy as np
 
-def get_input():
-    with open("inputs/4.txt", "r") as f:
-        input_text = f.read()
-
-    grid = [list(l) for l in input_text.split("\n") if len(l) > 0]
+def get_input(input_file):
+    grid = [list(l) for l in input_file.split("\n") if len(l) > 0]
     for line in grid:
         for idx, char in enumerate(line):
             if char == "@":
@@ -65,7 +62,8 @@ def solve_pt2(grid):
             set_coords(grid, remove, 0)
     return ans
 
-
-g = get_input()
-print("Part 1 ans:", solve_pt1(g))
-print("Part 2 ans:", solve_pt2(g))
+def main(input_file):
+    g = get_input(input_file)
+    pt1_ans = solve_pt1(g)
+    pt2_ans = solve_pt2(g)
+    return (pt1_ans, pt2_ans)
