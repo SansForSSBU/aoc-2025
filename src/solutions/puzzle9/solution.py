@@ -158,6 +158,23 @@ class Loop():
         elif turning_number == +360:
             return Side.RIGHT
         raise ValueError
+    
+    def intersections(self, edge1):
+        if edge1.orientation == Orientation.HORIZONTAL:
+            x = edge1.x
+            eligible_edges = [v for k,v in self.vertical_edges.items() if k in x]
+            for l in eligible_edges:
+                for e in l:
+                    if edge1.y in e.y:
+                        return True
+        elif edge1.orientation == Orientation.VERTICAL:
+            y = edge1.y
+            eligible_edges = [v for k,v in self.horizontal_edges.items() if k in y]
+            for l in eligible_edges:
+                for e in l:
+                    if edge1.x in e.x:
+                        return True
+        return False
 
 def get_best_rectangles(vertex_list):
     rectangles = []
@@ -208,20 +225,8 @@ def is_rectangle_legal(rectangle, loop):
     shrunk_rect = rectangle.get_shrunk_rect()
     shrunk_rect_edges = shrunk_rect.edges()
     for edge1 in shrunk_rect_edges:
-        if edge1.orientation == Orientation.HORIZONTAL:
-            x = edge1.x
-            eligible_edges = [v for k,v in loop.vertical_edges.items() if k in x]
-            for l in eligible_edges:
-                for e in l:
-                    if edge1.y in e.y:
-                        return False
-        elif edge1.orientation == Orientation.VERTICAL:
-            y = edge1.y
-            eligible_edges = [v for k,v in loop.horizontal_edges.items() if k in y]
-            for l in eligible_edges:
-                for e in l:
-                    if edge1.x in e.x:
-                        return False
+        if loop.intersections(edge1):
+            return False
     return True
 
 def solve_pt2(coordinate_list):
