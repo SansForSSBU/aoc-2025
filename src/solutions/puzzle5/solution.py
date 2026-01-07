@@ -1,15 +1,8 @@
 def is_fresh(ranges, ingredient_id):
-    for r in ranges:
-        if ingredient_id in r:
-            return True
-    return False
+    return any([ingredient_id in r for r in ranges])
 
 def solve_pt1(ranges, ingredients):
-    ans = 0
-    for ingredient in ingredients:
-        if is_fresh(ranges, ingredient):
-            ans += 1
-    return ans
+    return len([ingredient for ingredient in ingredients if is_fresh(ranges, ingredient)])
 
 def merge_ranges(r1, r2):
     # Check if the two ranges overlap
