@@ -29,12 +29,6 @@ class Machine():
                 return False
         return True
 
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return f"{" ".join([str(x) for x in self.lights])} {self.buttons} {self.joltages}"
-
 def parse_joltages(joltage_text):
     return [int(x) for x in joltage_text.strip("{}").split(",")]
 
