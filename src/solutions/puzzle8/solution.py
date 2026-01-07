@@ -2,9 +2,6 @@ from copy import deepcopy
 import functools
 import math
 
-with open("inputs/8.txt", "r") as f:
-    input_text = f.read()
-
 def update_circuits(connection, circuits):
     circuitsConnected = []
     for idx, circuit in enumerate(circuits):
@@ -60,7 +57,8 @@ def solve_pt2(boxes):
             box2_x = boxes[connection[1]][0]
             return box1_x*box2_x
 
-
-boxes = [tuple([int(n) for n in box.split(",")]) for box in input_text.split("\n") if len(box)>0]
-print("Part 1 ans:", solve_pt1(boxes))
-print("Part 2 ans:", solve_pt2(boxes))
+def main(input_file):
+    boxes = [tuple([int(n) for n in box.split(",")]) for box in input_file.split("\n") if len(box)>0]
+    pt1_ans = solve_pt1(boxes)
+    pt2_ans = solve_pt2(boxes)
+    return (pt1_ans, pt2_ans)

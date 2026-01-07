@@ -1,8 +1,3 @@
-with open("inputs/7.txt", "r") as f:
-    input_text = f.read()
-
-lines = input_text.split()
-start_beam_idx = lines[0].index("S")
 def solve_puzzle(lines, start_beam_idx):
     timelines = {start_beam_idx: 1}
     beams = [start_beam_idx]
@@ -25,6 +20,8 @@ def solve_puzzle(lines, start_beam_idx):
         timelines = new_timelines
     return splits, sum(timelines.values())
 
-pt1_ans, pt2_ans = solve_puzzle(lines, start_beam_idx)
-print("Part 1 ans:", pt1_ans)
-print("Part 2 ans:", pt2_ans)
+def main(input_file):
+    lines = input_file.split()
+    start_beam_idx = lines[0].index("S")
+    pt1_ans, pt2_ans = solve_puzzle(lines, start_beam_idx)
+    return (pt1_ans, pt2_ans)

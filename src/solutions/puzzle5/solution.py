@@ -1,11 +1,3 @@
-with open("inputs/5.txt", "r") as f:
-    input_text = f.read()
-
-(ranges, ingredients) = input_text.split("\n\n")
-ranges = [[int(x) for x in r.split("-")] for r in ranges.split("\n")]
-ranges = [range(r[0], r[1]+1) for r in ranges]
-ingredients = [int(x) for x in ingredients.split("\n") if len(x) > 0]
-
 def is_fresh(ranges, ingredient_id):
     for r in ranges:
         if ingredient_id in r:
@@ -43,8 +35,13 @@ def solve_pt2(ranges):
             del ranges[deletion]
         ranges.append(r1)
     return sum([len(r) for r in ranges])
-    pass
 
-print("Part 1 ans:", solve_pt1(ranges, ingredients))
-print("Part 2 ans:", solve_pt2(ranges))
-pass
+def main(input_file):
+    (ranges, ingredients) = input_file.split("\n\n")
+    ranges = [[int(x) for x in r.split("-")] for r in ranges.split("\n")]
+    ranges = [range(r[0], r[1]+1) for r in ranges]
+    ingredients = [int(x) for x in ingredients.split("\n") if len(x) > 0]
+
+    pt1_ans = solve_pt1(ranges, ingredients)
+    pt2_ans = solve_pt2(ranges)
+    return (pt1_ans, pt2_ans)

@@ -1,6 +1,4 @@
 import math
-with open("inputs/6.txt", "r") as f:
-    input_text = f.read()
 
 def parse_input_pt1(input_text):
     lines = input_text.split("\n")
@@ -42,7 +40,9 @@ def solve_pt1(operators, numbers):
             ans += sum(numberList)
     return ans
 
-(operators, numbers) = parse_input_pt1(input_text)
-print("Part 1 ans:", solve_pt1(operators, numbers))
-(operators, numbers) = parse_input_pt2(input_text)
-print("Part 2 ans:", solve_pt1(operators, numbers))
+def main(input_file):
+    (operators, numbers) = parse_input_pt1(input_file)
+    pt1_ans = solve_pt1(operators, numbers)
+    (operators, numbers) = parse_input_pt2(input_file)
+    pt2_ans = solve_pt1(operators, numbers)
+    return (pt1_ans, pt2_ans)
