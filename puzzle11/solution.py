@@ -30,11 +30,6 @@ def find_n_routes(graph, start, end):
             ans += v
     return ans
 
-memo = {}
-def find_n_routes2(graph, start, end):
-
-    pass
-
 def solve_pt1(graph):
     return find_n_routes(graph, "you", "out")
     
