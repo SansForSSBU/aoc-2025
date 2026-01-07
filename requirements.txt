@@ -1,1 +1,11 @@
+iniconfig
+mpmath
 numpy
+packaging
+pip
+pluggy
+PuLP
+Pygments
+pytest
+solutions
+sympy
