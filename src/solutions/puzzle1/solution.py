@@ -25,8 +25,8 @@ def move_dial(move):
     if dial == 0:
         pt1_ans += 1
 
-for move in moves:
-    move_dial(move)
+def main():
+    for move in moves:
+        move_dial(move)
 
-print(pt1_ans)
-print(pt2_ans)
+    return pt1_ans, pt2_ans
