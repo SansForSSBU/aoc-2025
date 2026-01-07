@@ -5,7 +5,7 @@ import json
 def test_solutions():
     with open("tests/my_inputs/answers.txt", "r") as f:
         answers = json.load(f)
-    for puzzle_num in range(1, 13):
+    for puzzle_num in range(1, len(answers)+1):
         module_name = f"solutions.puzzle{puzzle_num}.solution"
         solution = importlib.import_module(module_name)
         input_path = f"tests/my_inputs/{puzzle_num}.txt"
