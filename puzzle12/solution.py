@@ -1,4 +1,5 @@
 import numpy as np
+from math import prod
 with open("puzzle12/input.txt") as f:
     input_text = f.read()
 
@@ -20,16 +21,16 @@ for problem in [p for p in problems_text.split("\n") if len(p) > 0]:
     dims = [int(x) for x in spec.split("x")]
     amounts = [int(x) for x in amounts.split(" ")]
     problems.append((dims, amounts))
-pass
 
 def solve_problem(problem):
     dims, nums = problem
     total_space = dims[0]*dims[1]
-    total_occupied = sum([v*sum(sum(presents[i])) for i,v in enumerate(nums)])
-    if total_occupied > total_space:
+    min_occupied = sum([v*sum(sum(presents[i])) for i,v in enumerate(nums)])
+    if min_occupied > total_space:
         return False
     
-    if total_space >= 9 * sum(nums):
+    max_occupied = [prod(present.shape) for present in presents]
+    if total_space >= sum([num * max_occupied[i] for i, num in enumerate(nums)]):
         return True
     
     raise Exception("Naive solution won't work.")
