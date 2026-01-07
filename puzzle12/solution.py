@@ -39,4 +39,4 @@ n = 0
 for problem in problems:
     if solve_problem(problem):
         n += 1
-print(n)
+print("Part 1 solution:", n)
