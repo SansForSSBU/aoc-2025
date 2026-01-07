@@ -19,11 +19,8 @@ class Safe:
         
         return pt1_clicks, pt2_clicks
 
-def main():
-    with open("inputs/1.txt", "r") as f:
-        lines = f.read()
-
-    moves = lines.split("\n")
+def main(input_file):
+    moves = input_file.split("\n")
     moves = [(move[0], int(move[1:])) for move in moves if len(move) > 0]
     pt1_ans = 0
     pt2_ans = 0
