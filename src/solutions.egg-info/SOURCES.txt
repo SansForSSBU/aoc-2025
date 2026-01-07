@@ -1,4 +1,6 @@
+README.md
 pyproject.toml
+src/main.py
 src/solutions/__init__.py
 src/solutions.egg-info/PKG-INFO
 src/solutions.egg-info/SOURCES.txt
@@ -17,4 +19,4 @@ src/solutions/puzzle6/solution.py
 src/solutions/puzzle7/solution.py
 src/solutions/puzzle8/solution.py
 src/solutions/puzzle9/solution.py
-tests/tests.py
+tests/test_solutions.py
