@@ -71,19 +71,28 @@ Answers solve_problem(struct queue_head instructions)
     int pt2_ans = 0;
     struct node *item;
     TAILQ_FOREACH(item, &instructions, entries) {
-        for (int i=0; i<item->data.clicks; i++)
+        int clicks = item->data.clicks;
+        Direction dir = item->data.dir;
+        int clicks_to_zero;
+        if (dir == LEFT)
         {
-            if (item->data.dir == LEFT)
-            {
-                dial = (dial - 1) % 100;
-            }
-            else
-            {
-                dial = (dial + 1) % 100;
-            }
-            if (dial == 0) {
-                pt2_ans += 1;
-            }
+            clicks_to_zero = dial;
+            dial = (((dial-clicks) % 100)+100) % 100;
+        }
+        else
+        {
+            clicks_to_zero = 100-dial;
+            dial = (((dial+clicks) % 100)+100) % 100;
+        }
+        if (clicks_to_zero == 0)
+        {
+            clicks_to_zero = 100;
+        }
+        if (clicks >= clicks_to_zero)
+        {
+            pt2_ans += 1;
+            int remaining = clicks - clicks_to_zero;
+            pt2_ans += remaining / 100;
         }
         if (dial == 0)
         {
