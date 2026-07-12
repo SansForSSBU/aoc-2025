@@ -59,6 +59,28 @@ struct queue_head parse_input(FILE *file)
     return my_queue;
 }
 
+int solve_pt1(struct queue_head instructions)
+{
+    int dial = 50;
+    int clicks = 0;
+    struct node *item;
+    TAILQ_FOREACH(item, &instructions, entries) {
+        if (item->data.dir == LEFT)
+        {
+            dial = (dial - item->data.clicks) % 100;
+        }
+        else
+        {
+            dial = (dial + item->data.clicks) % 100;
+        }
+        if (dial == 0)
+        {
+            clicks += 1;
+        }
+    }
+    return clicks;
+}
+
 int main(int argc, char* argv[])
 {
     FILE *file = fopen("/home/joseph/repos/aoc-2025/tests/my_inputs/1.txt", "r");
@@ -69,10 +91,10 @@ int main(int argc, char* argv[])
     struct queue_head instructions = parse_input(file);
 
     struct node *item;
-    TAILQ_FOREACH(item, &instructions, entries) {
-        printf("%d\n", item->data.clicks);
-    }
-    
+
+    int pt1_ans = solve_pt1(instructions);
+    printf("Part 1 ans: %d\n", pt1_ans);
+
     fclose(file);
     return 0;
 }
