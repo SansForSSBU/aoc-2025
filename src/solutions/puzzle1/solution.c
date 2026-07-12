@@ -64,15 +64,18 @@ typedef struct {
     int pt2_ans;
 } Answers;
 
-Answers solve_problem(struct queue_head instructions)
+Answers solve_problem(FILE *file)
 {
     int dial = 50;
     int pt1_ans = 0;
     int pt2_ans = 0;
-    struct node *item;
-    TAILQ_FOREACH(item, &instructions, entries) {
-        int clicks = item->data.clicks;
-        Direction dir = item->data.dir;
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        Instruction i = parse_instruction(buffer);
+        int clicks = i.clicks;
+        Direction dir = i.dir;
         int clicks_to_zero;
         if (dir == LEFT)
         {
@@ -110,11 +113,10 @@ int main(int argc, char* argv[])
         perror("Error opening file");
         return 1;
     }
-    struct queue_head instructions = parse_input(file);
 
     struct node *item;
 
-    Answers ans = solve_problem(instructions);
+    Answers ans = solve_problem(file);
     printf("Part 1 ans: %d\n", ans.pt1_ans);
     printf("Part 2 ans: %d\n", ans.pt2_ans);
     fclose(file);
