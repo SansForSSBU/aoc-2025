@@ -14,13 +14,6 @@ typedef struct {
     int clicks;
 } Instruction;
 
-struct node {
-    Instruction data;
-    TAILQ_ENTRY(node) entries;
-};
-
-TAILQ_HEAD(QueueHead, node) head;
-
 Direction to_direction (char c)
 {
     if (c == 'L')
@@ -43,6 +36,29 @@ Instruction parse_instruction(char* line)
     return ret;
 }
 
+struct node {
+    Instruction data;
+    TAILQ_ENTRY(node) entries;
+};
+
+TAILQ_HEAD(queue_head, node);
+
+
+struct queue_head parse_input(FILE *file)
+{
+    struct queue_head my_queue;
+    TAILQ_INIT(&my_queue);
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        Instruction i = parse_instruction(buffer);
+        struct node *n1 = malloc(sizeof(struct node));
+        n1->data = i;
+        TAILQ_INSERT_TAIL(&my_queue, n1, entries);
+    }
+    return my_queue;
+}
+
 int main(int argc, char* argv[])
 {
     FILE *file = fopen("/home/joseph/repos/aoc-2025/tests/my_inputs/1.txt", "r");
@@ -50,20 +66,13 @@ int main(int argc, char* argv[])
         perror("Error opening file");
         return 1;
     }
+    struct queue_head instructions = parse_input(file);
 
-    TAILQ_INIT(&head);
-    char buffer[256];
-    while (fgets(buffer, sizeof(buffer), file) != NULL)
-    {
-        Instruction i = parse_instruction(buffer);
-        struct node *n1 = malloc(sizeof(struct node));
-        n1->data = i;
-        TAILQ_INSERT_TAIL(&head, n1, entries);
-    }
     struct node *item;
-    TAILQ_FOREACH(item, &head, entries) {
+    TAILQ_FOREACH(item, &instructions, entries) {
         printf("%d\n", item->data.clicks);
     }
+    
     fclose(file);
     return 0;
 }
