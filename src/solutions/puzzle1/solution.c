@@ -59,32 +59,16 @@ struct queue_head parse_input(FILE *file)
     return my_queue;
 }
 
-int solve_pt1(struct queue_head instructions)
-{
-    int dial = 50;
-    int clicks = 0;
-    struct node *item;
-    TAILQ_FOREACH(item, &instructions, entries) {
-        if (item->data.dir == LEFT)
-        {
-            dial = (dial - item->data.clicks) % 100;
-        }
-        else
-        {
-            dial = (dial + item->data.clicks) % 100;
-        }
-        if (dial == 0)
-        {
-            clicks += 1;
-        }
-    }
-    return clicks;
-}
+typedef struct {
+    int pt1_ans;
+    int pt2_ans;
+} Answers;
 
-int solve_pt2(struct queue_head instructions)
+Answers solve_problem(struct queue_head instructions)
 {
     int dial = 50;
-    int clicks = 0;
+    int pt1_ans = 0;
+    int pt2_ans = 0;
     struct node *item;
     TAILQ_FOREACH(item, &instructions, entries) {
         for (int i=0; i<item->data.clicks; i++)
@@ -98,11 +82,16 @@ int solve_pt2(struct queue_head instructions)
                 dial = (dial + 1) % 100;
             }
             if (dial == 0) {
-                clicks += 1;
+                pt2_ans += 1;
             }
         }
+        if (dial == 0)
+        {
+            pt1_ans += 1;
+        }
     }
-    return clicks;
+    Answers ret = {pt1_ans, pt2_ans};
+    return ret;
 }
 
 int main(int argc, char* argv[])
@@ -116,10 +105,9 @@ int main(int argc, char* argv[])
 
     struct node *item;
 
-    int pt1_ans = solve_pt1(instructions);
-    int pt2_ans = solve_pt2(instructions);
-    printf("Part 1 ans: %d\n", pt1_ans);
-    printf("Part 2 ans: %d\n", pt2_ans);
+    Answers ans = solve_problem(instructions);
+    printf("Part 1 ans: %d\n", ans.pt1_ans);
+    printf("Part 2 ans: %d\n", ans.pt2_ans);
     fclose(file);
     return 0;
 }
