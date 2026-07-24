@@ -36,29 +36,6 @@ Instruction parse_instruction(char* line)
     return ret;
 }
 
-struct node {
-    Instruction data;
-    TAILQ_ENTRY(node) entries;
-};
-
-TAILQ_HEAD(queue_head, node);
-
-
-struct queue_head parse_input(FILE *file)
-{
-    struct queue_head my_queue;
-    TAILQ_INIT(&my_queue);
-    char buffer[256];
-    while (fgets(buffer, sizeof(buffer), file) != NULL)
-    {
-        Instruction i = parse_instruction(buffer);
-        struct node *n1 = malloc(sizeof(struct node));
-        n1->data = i;
-        TAILQ_INSERT_TAIL(&my_queue, n1, entries);
-    }
-    return my_queue;
-}
-
 typedef struct {
     int pt1_ans;
     int pt2_ans;
@@ -113,9 +90,6 @@ int main(int argc, char* argv[])
         perror("Error opening file");
         return 1;
     }
-
-    struct node *item;
-
     Answers ans = solve_problem(file);
     printf("Part 1 ans: %d\n", ans.pt1_ans);
     printf("Part 2 ans: %d\n", ans.pt2_ans);
