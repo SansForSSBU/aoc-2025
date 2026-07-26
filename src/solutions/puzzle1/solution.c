@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/queue.h>
 #include <string.h>
 
 typedef enum {
@@ -85,7 +84,7 @@ Answers solve_problem(FILE *file)
 
 int main(int argc, char* argv[])
 {
-    FILE *file = fopen("/home/joseph/repos/aoc-2025/tests/my_inputs/1.txt", "r");
+    FILE *file = fopen("../../../inputs/1.txt", "r");
     if (file == NULL) {
         perror("Error opening file");
         return 1;
