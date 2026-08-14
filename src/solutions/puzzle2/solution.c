@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
         perror("Error opening file");
         return 1;
     }
-    char buffer[512];
+    char buffer[512] = {0};
     fgets(buffer, sizeof(buffer), file);
     char *saveptr1, *saveptr2;
     char* token = strtok_r(buffer, ",", &saveptr1);
@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
         char* num1 = strtok_r(token, "-", &saveptr2);
         char* num2 = strtok_r(NULL, "-", &saveptr2);
         Range* r = create_range(num1, num2);
+        token = strtok_r(NULL, ",", &saveptr1);
     }
     return 0;
 }
