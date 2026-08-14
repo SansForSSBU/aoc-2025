@@ -38,20 +38,10 @@ bool safe_str_to_int(const char* str, int* out)
     return true;
 }
 
-int main(int argc, char* argv[])
+bool parse_input(char* input, Range* ranges, int* num_ranges)
 {
-    FILE *file = fopen("../../../inputs/2.txt", "r");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
-    char buffer[512] = {0};
-    
-    fgets(buffer, sizeof(buffer), file);
     char *saveptr1, *saveptr2;
-    char* token = strtok_r(buffer, ",", &saveptr1);
-    Range ranges[64] = {0};
-    int num_ranges = 0;
+    char* token = strtok_r(input, ",", &saveptr1);
     while (token != NULL) {
         char* num1 = strtok_r(token, "-", &saveptr2);
         char* num2 = strtok_r(NULL, "-", &saveptr2);
@@ -60,10 +50,29 @@ int main(int argc, char* argv[])
         if (safe_str_to_int(num1, &start) && safe_str_to_int(num2, &end))
         {
             Range r = {start, end};
-            ranges[num_ranges++] = r;
-            printf("%d-%d\n", r.num1, r.num2);
+            ranges[(*num_ranges)++] = r;
+        }
+        else
+        {
+            return false;
         }
         token = strtok_r(NULL, ",", &saveptr1);
     }
+    return true;
+}
+
+int main(int argc, char* argv[])
+{
+    FILE *file = fopen("../../../inputs/2.txt", "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+    char buffer[512] = {0};
+    Range ranges[64] = {0};
+    int num_ranges = 0;
+    fgets(buffer, sizeof(buffer), file);
+    parse_input(buffer, ranges, &num_ranges);
+    
     return 0;
 }
