@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <ctype.h>
 #include <string.h>
 #include <malloc.h>
 #include <limits.h>
@@ -7,11 +10,33 @@
 #include <stdbool.h>
 
 typedef struct Range {
-    int num1;
-    int num2;
+    uint64_t num1;
+    uint64_t num2;
 } Range;
 
-bool safe_str_to_int(const char* str, int* out)
+char* trim(char* str)
+{
+    if (str == NULL) return NULL;
+
+    while (isspace((unsigned char)*str)) {
+        str++;
+    }
+
+    if (*str == '\0') {
+        return str;
+    }
+
+    char *end = str + strlen(str) - 1;
+
+    while (end > str && isspace((unsigned char)*end)) {
+        end--;
+    }
+    *(end+1) = '\0';
+
+    return str;
+}
+
+bool safe_str_to_uint64(char* str, uint64_t* out)
 {
     if (str == NULL || *str == '\0') {
         return false;
@@ -19,8 +44,9 @@ bool safe_str_to_int(const char* str, int* out)
 
     char* endptr = NULL;
     errno = 0;
+    str = trim(str);
 
-    long val = strtol(str, &endptr, 10);
+    unsigned long long val = strtoull(str, &endptr, 10);
 
     if (errno == ERANGE) {
         return false;
@@ -30,11 +56,11 @@ bool safe_str_to_int(const char* str, int* out)
         return false;
     }
 
-    if (val < INT_MIN || val > INT_MAX) {
+    if (val > UINT64_MAX) {
         return false;
     }
 
-    *out = (int)val;
+    *out = (uint64_t)val;
     return true;
 }
 
@@ -45,9 +71,9 @@ bool parse_input(char* input, Range* ranges, int* num_ranges)
     while (token != NULL) {
         char* num1 = strtok_r(token, "-", &saveptr2);
         char* num2 = strtok_r(NULL, "-", &saveptr2);
-        int start;
-        int end;
-        if (safe_str_to_int(num1, &start) && safe_str_to_int(num2, &end))
+        uint64_t start;
+        uint64_t end;
+        if (safe_str_to_uint64(num1, &start) && safe_str_to_uint64(num2, &end))
         {
             Range r = {start, end};
             ranges[(*num_ranges)++] = r;
@@ -72,7 +98,9 @@ int main(int argc, char* argv[])
     Range ranges[64] = {0};
     int num_ranges = 0;
     fgets(buffer, sizeof(buffer), file);
-    parse_input(buffer, ranges, &num_ranges);
-    
+    if (parse_input(buffer, ranges, &num_ranges) == false)
+    {
+        return 1;
+    }
     return 0;
 }
