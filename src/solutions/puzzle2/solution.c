@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <math.h>
 
 typedef struct Range {
     uint64_t num1;
@@ -64,6 +65,17 @@ bool safe_str_to_uint64(char* str, uint64_t* out)
     return true;
 }
 
+int count_digits(uint64_t n)
+{
+    int count = 0;
+    do {
+        count++;
+        n /= 10;
+    } while (n != 0);
+
+    return count;
+}
+
 bool parse_input(char* input, Range* ranges, int* num_ranges)
 {
     char *saveptr1, *saveptr2;
@@ -87,6 +99,49 @@ bool parse_input(char* input, Range* ranges, int* num_ranges)
     return true;
 }
 
+uint64_t positive_integer_power_of_ten(int power)
+{
+    uint64_t ret = 1;
+    for (int i = 0; i < power; i++)
+    {
+        ret = ret * 10;
+    }
+    return ret;
+}
+
+bool make_invalids_with_n_digits(uint64_t* buffer, int* count, int num_digits)
+{
+    if (num_digits % 2 != 0)
+    {
+        return false; // Odd numbers are not supported.
+    }
+    if (num_digits > 18)
+    {
+        return false; // uint64_t cannot store numbers this large
+    }
+    for (int i = positive_integer_power_of_ten((num_digits / 2)-1); i < positive_integer_power_of_ten(num_digits / 2); i++)
+    {
+        uint64_t num = i * positive_integer_power_of_ten(num_digits / 2) + i;
+        buffer[(*count)++] = num;
+    }
+    return true;
+}
+
+uint64_t solve_pt1(Range* ranges, int num_ranges)
+{
+    for (int i = 0; i < num_ranges; i++)
+    {
+        Range r = ranges[i];
+        int num_digits = count_digits(r.num2);
+        int buff_len = positive_integer_power_of_ten(num_digits / 2) - positive_integer_power_of_ten((num_digits / 2) - 1);
+        uint64_t* buffer = malloc(sizeof(uint64_t) * buff_len);
+        int num_invalids = 0;
+        make_invalids_with_n_digits(buffer, &num_invalids, num_digits);
+        printf("%d", num_invalids);
+    }
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     FILE *file = fopen("../../../inputs/2.txt", "r");
@@ -102,5 +157,6 @@ int main(int argc, char* argv[])
     {
         return 1;
     }
+    uint64_t pt1_ans = solve_pt1(ranges, num_ranges);
     return 0;
 }
