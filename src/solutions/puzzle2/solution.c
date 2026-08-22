@@ -134,6 +134,7 @@ void get_invalids_at_idx_pt2(uint64_t idx, uint64_t* buff, uint64_t* num_returne
     for (uint64_t num_repeats = 2; num_repeats <= max_len / length; num_repeats++)
     {
         uint64_t n = repeat_num_n_times(idx, num_repeats);
+        // TODO: Do NOT use if the number is also reachable via a shorter base num
         buff[(*num_returned)++] = n;
     }
 }
