@@ -130,10 +130,11 @@ void get_invalids_at_idx_pt2(uint64_t idx, uint64_t* buff, uint64_t* num_returne
 {
     uint64_t max_len = 14;
     uint64_t length = count_digits(idx);
-    num_returned = 0;
+    *num_returned = 0;
     for (uint64_t num_repeats = 2; num_repeats <= max_len / length; num_repeats++)
     {
-        buff[(*num_returned)++] = repeat_num_n_times(idx, num_repeats);
+        uint64_t n = repeat_num_n_times(idx, num_repeats);
+        buff[(*num_returned)++] = n;
     }
 }
 

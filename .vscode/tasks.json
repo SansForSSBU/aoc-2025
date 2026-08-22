@@ -11,7 +11,7 @@
                 "-Werror",
                 "-pedantic",
                 "-pedantic-errors",
-                "-O2",
+                //"-O2",
                 "-g",
                 "${file}",
                 "-o",
