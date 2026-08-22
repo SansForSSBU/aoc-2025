@@ -110,65 +110,24 @@ uint64_t positive_integer_power_of_ten(int power)
     return ret;
 }
 
-bool make_invalids_with_n_digits(uint64_t* buffer, int* count, int num_digits)
+uint64_t get_invalid_at_idx_pt1(int idx)
 {
-    if (num_digits % 2 != 0)
-    {
-        return false; // Odd numbers are not supported.
-    }
-    if (num_digits > 18)
-    {
-        return false; // uint64_t cannot store numbers this large
-    }
-    for (int i = positive_integer_power_of_ten((num_digits / 2)-1); i < positive_integer_power_of_ten(num_digits / 2); i++)
-    {
-        uint64_t num = i * positive_integer_power_of_ten(num_digits / 2) + i;
-        buffer[(*count)++] = num;
-    }
-    return true;
-}
-int num_invalids_pt1(int n_digits)
-{
-    return positive_integer_power_of_ten(n_digits / 2) - positive_integer_power_of_ten((n_digits / 2) - 1);
-}
-
-int total_num_invalids_pt1(int max_len)
-{
-    int ret = 0;
-    for (int num_digits = 2; num_digits <= max_len; num_digits += 2)
-    {
-        ret += num_invalids_pt1(num_digits);
-    }
-    return ret;
+    uint64_t num = idx * positive_integer_power_of_ten(count_digits(idx)) + idx;
 }
 
 uint64_t solve_pt1(Range* ranges, int num_ranges)
 {
     uint64_t pt1_ans = 0;
-
-    // Make invalids
     int max_len = 14;
-    int total_num_invalids = 0;
-    int buff_len = total_num_invalids_pt1(max_len);
-    uint64_t* buffer = malloc(sizeof(uint64_t) * buff_len);
-    for (int num_digits = 2; num_digits <= max_len; num_digits += 2)
+    for (int i = 1; i < positive_integer_power_of_ten(max_len / 2); i++)
     {
-        int num_invalids = 0;
-        make_invalids_with_n_digits(&buffer[total_num_invalids], &num_invalids, num_digits);
-        total_num_invalids += num_invalids;
-    }
-
-    for (int i = 0; i < num_ranges; i++)
-    {
-        Range r = ranges[i];
-        
-        
-        for (int i = 0; i < total_num_invalids; i++)
+        uint64_t num = get_invalid_at_idx_pt1(i);
+        for (int i = 0; i < num_ranges; i++)
         {
-            uint64_t invalid_num = buffer[i];
-            if (invalid_num >= r.num1 && invalid_num <= r.num2)
+            Range r = ranges[i];
+            if (num >= r.num1 && num <= r.num2)
             {
-                pt1_ans += invalid_num;
+                pt1_ans += num;
             }
         }
     }
