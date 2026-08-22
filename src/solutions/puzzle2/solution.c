@@ -77,7 +77,7 @@ int count_digits(uint64_t n)
     return count;
 }
 
-bool parse_input(char* input, Range* ranges, int* num_ranges)
+bool parse_input(char* input, Range* ranges, uint64_t* num_ranges)
 {
     char *saveptr1, *saveptr2;
     char* token = strtok_r(input, ",", &saveptr1);
@@ -100,29 +100,40 @@ bool parse_input(char* input, Range* ranges, int* num_ranges)
     return true;
 }
 
-uint64_t positive_integer_power_of_ten(int power)
+uint64_t positive_integer_power_of_ten(uint64_t power)
 {
     uint64_t ret = 1;
-    for (int i = 0; i < power; i++)
+    for (uint64_t i = 0; i < power; i++)
     {
         ret = ret * 10;
     }
     return ret;
 }
 
-uint64_t get_invalid_at_idx_pt1(int idx)
+uint64_t repeat_num_n_times(uint64_t num, int num_times)
 {
-    uint64_t num = idx * positive_integer_power_of_ten(count_digits(idx)) + idx;
+    int num_digits = count_digits(num);
+    uint64_t ret = num;
+    for (int i = 1; i < num_times; i++)
+    {
+        ret += num * positive_integer_power_of_ten(i * num_digits);
+    }
+    return ret;
 }
 
-uint64_t solve_pt1(Range* ranges, int num_ranges)
+uint64_t get_invalid_at_idx_pt1(int idx)
+{
+    return repeat_num_n_times(idx, 2);
+}
+
+uint64_t solve_pt1(Range* ranges, uint64_t num_ranges)
 {
     uint64_t pt1_ans = 0;
-    int max_len = 14;
-    for (int i = 1; i < positive_integer_power_of_ten(max_len / 2); i++)
+    uint64_t max_len = 14;
+    for (uint64_t i = 1; i < positive_integer_power_of_ten(max_len / 2); i++)
     {
         uint64_t num = get_invalid_at_idx_pt1(i);
-        for (int i = 0; i < num_ranges; i++)
+        for (uint64_t i = 0; i < num_ranges; i++)
         {
             Range r = ranges[i];
             if (num >= r.num1 && num <= r.num2)
@@ -134,7 +145,7 @@ uint64_t solve_pt1(Range* ranges, int num_ranges)
     return pt1_ans;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     FILE *file = fopen("../../../inputs/2.txt", "r");
     if (file == NULL) {
@@ -143,8 +154,12 @@ int main(int argc, char* argv[])
     }
     char buffer[512] = {0};
     Range ranges[64] = {0};
-    int num_ranges = 0;
-    fgets(buffer, sizeof(buffer), file);
+    uint64_t num_ranges = 0;
+    char* ret = fgets(buffer, sizeof(buffer), file);
+    if (ret == NULL)
+    {
+        return 1;
+    }
     if (parse_input(buffer, ranges, &num_ranges) == false)
     {
         return 1;
