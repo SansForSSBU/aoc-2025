@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <math.h>
+#include <inttypes.h>
 
 typedef struct Range {
     uint64_t num1;
@@ -126,20 +127,52 @@ bool make_invalids_with_n_digits(uint64_t* buffer, int* count, int num_digits)
     }
     return true;
 }
+int num_invalids_pt1(int n_digits)
+{
+    return positive_integer_power_of_ten(n_digits / 2) - positive_integer_power_of_ten((n_digits / 2) - 1);
+}
+
+int total_num_invalids_pt1(int max_len)
+{
+    int ret = 0;
+    for (int num_digits = 2; num_digits <= max_len; num_digits += 2)
+    {
+        ret += num_invalids_pt1(num_digits);
+    }
+    return ret;
+}
 
 uint64_t solve_pt1(Range* ranges, int num_ranges)
 {
+    uint64_t pt1_ans = 0;
+
+    // Make invalids
+    int max_len = 14;
+    int total_num_invalids = 0;
+    int buff_len = total_num_invalids_pt1(max_len);
+    uint64_t* buffer = malloc(sizeof(uint64_t) * buff_len);
+    for (int num_digits = 2; num_digits <= max_len; num_digits += 2)
+    {
+        int num_invalids = 0;
+        make_invalids_with_n_digits(&buffer[total_num_invalids], &num_invalids, num_digits);
+        total_num_invalids += num_invalids;
+    }
+
     for (int i = 0; i < num_ranges; i++)
     {
         Range r = ranges[i];
-        int num_digits = count_digits(r.num2);
-        int buff_len = positive_integer_power_of_ten(num_digits / 2) - positive_integer_power_of_ten((num_digits / 2) - 1);
-        uint64_t* buffer = malloc(sizeof(uint64_t) * buff_len);
-        int num_invalids = 0;
-        make_invalids_with_n_digits(buffer, &num_invalids, num_digits);
-        printf("%d", num_invalids);
+        
+        
+        for (int i = 0; i < total_num_invalids; i++)
+        {
+            uint64_t invalid_num = buffer[i];
+            if (invalid_num >= r.num1 && invalid_num <= r.num2)
+            {
+                pt1_ans += invalid_num;
+            }
+        }
     }
-    return 0;
+    return pt1_ans;
 }
 
 int main(int argc, char* argv[])
@@ -158,5 +191,6 @@ int main(int argc, char* argv[])
         return 1;
     }
     uint64_t pt1_ans = solve_pt1(ranges, num_ranges);
+    printf("Part 1 ans: %" PRIu64 "\n", pt1_ans);
     return 0;
 }
