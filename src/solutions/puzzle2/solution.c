@@ -121,9 +121,32 @@ uint64_t repeat_num_n_times(uint64_t num, int num_times)
     return ret;
 }
 
-uint64_t get_invalid_at_idx_pt1(int idx)
+uint64_t get_invalid_at_idx_pt1(uint64_t idx)
 {
     return repeat_num_n_times(idx, 2);
+}
+
+void get_invalids_at_idx_pt2(uint64_t idx, uint64_t* buff, uint64_t* num_returned)
+{
+    uint64_t max_len = 14;
+    uint64_t length = count_digits(idx);
+    num_returned = 0;
+    for (uint64_t num_repeats = 2; num_repeats <= max_len / length; num_repeats++)
+    {
+        buff[(*num_returned)++] = repeat_num_n_times(idx, num_repeats);
+    }
+}
+
+void add_invalid_to_ans_if_in_ranges(uint64_t invalid, uint64_t* ans, Range* ranges, uint64_t num_ranges)
+{
+    for (uint64_t i = 0; i < num_ranges; i++)
+    {
+        Range r = ranges[i];
+        if (invalid >= r.num1 && invalid <= r.num2)
+        {
+            (*ans) += invalid;
+        }
+    }
 }
 
 uint64_t solve_pt1(Range* ranges, uint64_t num_ranges)
@@ -133,16 +156,27 @@ uint64_t solve_pt1(Range* ranges, uint64_t num_ranges)
     for (uint64_t i = 1; i < positive_integer_power_of_ten(max_len / 2); i++)
     {
         uint64_t num = get_invalid_at_idx_pt1(i);
-        for (uint64_t i = 0; i < num_ranges; i++)
-        {
-            Range r = ranges[i];
-            if (num >= r.num1 && num <= r.num2)
-            {
-                pt1_ans += num;
-            }
-        }
+        add_invalid_to_ans_if_in_ranges(num, &pt1_ans, ranges, num_ranges);
     }
     return pt1_ans;
+}
+
+uint64_t solve_pt2(Range* ranges, uint64_t num_ranges)
+{
+    uint64_t pt2_ans = 0;
+    uint64_t max_len = 14;
+    uint64_t buff[14] = {0};
+    uint64_t num_returned = 0;
+    for (uint64_t i = 1; i < positive_integer_power_of_ten(max_len / 2); i++)
+    {
+        get_invalids_at_idx_pt2(i, buff, &num_returned);
+        for (uint64_t v = 0; v < num_returned; v++)
+        {
+            uint64_t num = buff[v];
+            add_invalid_to_ans_if_in_ranges(num, &pt2_ans, ranges, num_ranges);
+        }
+    }
+    return pt2_ans;
 }
 
 int main()
@@ -166,5 +200,8 @@ int main()
     }
     uint64_t pt1_ans = solve_pt1(ranges, num_ranges);
     printf("Part 1 ans: %" PRIu64 "\n", pt1_ans);
+
+    uint64_t pt2_ans = solve_pt2(ranges, num_ranges);
+    printf("Part 2 ans: %" PRIu64 "\n", pt2_ans);
     return 0;
 }
